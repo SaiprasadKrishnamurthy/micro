@@ -1,5 +1,7 @@
 package com.sai.rules.rulebase;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.core.HazelcastInstance;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,16 +19,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import javax.jms.Message;
-import javax.jms.TextMessage;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -35,7 +33,6 @@ import java.util.stream.Stream;
 @EnableAutoConfiguration
 @SpringBootApplication
 @EnableFeignClients
-@EnableJms
 public class RulebaseServiceApp {
     public static void main(String[] args) {
         SpringApplication.run(RulebaseServiceApp.class, args);
@@ -102,16 +99,19 @@ class FlightRoutesRestAPI {
     }
 }
 
+@Configuration
+class HazelcastConfiguration {
+    @Bean
+    public Config config() {
+        return new Config(); // Set up any non-default config here
+    }
+}
+
 @Service
 class PreclearanceMessageListener {
 
-    @JmsListener(destination = "PreClearance")
-    void onMessage(final Message msg) throws Exception{
-        msg.acknowledge();
-        String m = ((TextMessage)msg).getText();
-        System.out.println(" ---- "+m);
-    }
-
+    @Autowired
+    private HazelcastInstance instance;
 
 
 }

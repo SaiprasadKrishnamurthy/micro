@@ -64,7 +64,7 @@ public class RefDataApp {
     }
 
     @Configuration
-    public class HazelcastConfiguration {
+    class HazelcastConfiguration {
         @Bean
         public Config config() {
             return new Config(); // Set up any non-default config here
