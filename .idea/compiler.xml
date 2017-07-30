@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="admin" />
+        <module name="config" />
+        <module name="discovery-service" />
+        <module name="refdata-service" />
+        <module name="rulebase" />
+        <module name="zipkin" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="admin" target="1.8" />
+      <module name="config" target="1.8" />
+      <module name="discovery-service" target="1.8" />
+      <module name="microservice-basic-example" target="1.8" />
+      <module name="refdata-service" target="1.8" />
+      <module name="rulebase" target="1.8" />
+      <module name="zipkin" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
