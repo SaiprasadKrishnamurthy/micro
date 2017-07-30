@@ -1,8 +1,8 @@
 package com.mews.refdata;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.activemq.command.ActiveMQTopic;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.HazelcastInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -10,9 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.Tracer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jms.annotation.EnableJms;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Repository;
@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 @EnableAutoConfiguration
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableJms
 @EnableScheduling
 public class RefDataApp {
     public static void main(String[] args) {
@@ -64,15 +63,23 @@ public class RefDataApp {
         }
     }
 
+    @Configuration
+    public class HazelcastConfiguration {
+        @Bean
+        public Config config() {
+            return new Config(); // Set up any non-default config here
+        }
+    }
+
     @Service
     class PreclearanceService {
 
-        @Autowired
-        private JmsTemplate jmsTemplate;
         private List<String> lines;
         private Random random = new Random();
         private ObjectMapper objectMapper = new ObjectMapper();
-        ;
+
+        @Autowired
+        private HazelcastInstance instance;
 
         public PreclearanceService() throws Exception {
             lines = new BufferedReader(new InputStreamReader(PreclearanceService.class.getClassLoader().getResourceAsStream("events.txt")))
@@ -87,16 +94,7 @@ public class RefDataApp {
             payload.put("value", random.nextInt(10));
             payload.put("color", "orange");
 
-            jmsTemplate.send(new ActiveMQTopic("PreClearance"), session -> {
-                javax.jms.Message message = null;
-                try {
-                    message = session.createTextMessage(objectMapper.writeValueAsString(payload));
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("local-sent");
-                return message;
-            });
+
         }
     }
 
