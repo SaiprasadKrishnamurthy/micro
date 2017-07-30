@@ -10,7 +10,13 @@ Documentation is in progress..
 
 The flights data are sourced from this site:  https://openflights.org/data.html
 
-
+## List of microservices
+* admin-service - A simple UI showing the monitoring stats of all the running microservices.
+* config-service - A centralized configuration management server.
+* discovery-service - A Eureka powered service registry.
+* refdata-service - A Reference data service that has the embedded database of all the airlines/route details.
+* rulebase-service - The edge service that is consumed by the end consumers.
+* zipkin-service - The service that has the Zipkin-UI to trace the distributed logs.
 
 
 ## License
