@@ -1,6 +1,9 @@
 package com.sai.rules.rulebase;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,19 +102,19 @@ class FlightRoutesRestAPI {
     }
 }
 
-@Configuration
-class HazelcastConfiguration {
-    @Bean
-    public Config config() {
-        return new Config(); // Set up any non-default config here
-    }
-}
 
 @Service
 class PreclearanceMessageListener {
 
-    @Autowired
-    private HazelcastInstance instance;
+    @Bean
+    HazelcastInstance instance() {
+        Config config = new Config();
+        NetworkConfig network = config.getNetworkConfig();
 
-
+        JoinConfig join = network.getJoin();
+        join.getAwsConfig().setEnabled(false);
+        join.getMulticastConfig().setEnabled(false);
+        join.getTcpIpConfig().setEnabled(true);
+        return Hazelcast.newHazelcastInstance(config);
+    }
 }

@@ -2,6 +2,9 @@ package com.mews.refdata;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hazelcast.config.Config;
+import com.hazelcast.config.JoinConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -66,8 +69,15 @@ public class RefDataApp {
     @Configuration
     class HazelcastConfiguration {
         @Bean
-        public Config config() {
-            return new Config(); // Set up any non-default config here
+        HazelcastInstance instance() {
+            Config config = new Config();
+            NetworkConfig network = config.getNetworkConfig();
+
+            JoinConfig join = network.getJoin();
+            join.getAwsConfig().setEnabled(false);
+            join.getMulticastConfig().setEnabled(false);
+            join.getTcpIpConfig().setEnabled(true);
+            return Hazelcast.newHazelcastInstance(config);
         }
     }
 
