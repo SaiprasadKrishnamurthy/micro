@@ -1,0 +1,19 @@
+ruleBook:
+  id: "PRF1"
+  name:   "Rule Definitions for Traveller based risk checks"
+  enabled: true
+  shouldApplyWhen: ""
+
+  - rule:
+      id: "PRF001"
+      terminateWhenMatched: true
+
+  - rule:
+        id: "PRF002"
+
+  - rule:
+        id: "PRF003"
+        timeoutInSeconds: 3
+        timeOutHandler: "RuleLibraries.handleTimeout(payload.traveller)"
+
+
