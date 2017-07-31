@@ -6,7 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/config-service/config.iml" filepath="$PROJECT_DIR$/config-service/config.iml" />
       <module fileurl="file://$PROJECT_DIR$/discovery-service/discovery-service.iml" filepath="$PROJECT_DIR$/discovery-service/discovery-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/microservice-basic-example.iml" filepath="$PROJECT_DIR$/microservice-basic-example.iml" />
-      <module fileurl="file://$PROJECT_DIR$/realtime-traveller-stats-service/realtime-traveller-stats.iml" filepath="$PROJECT_DIR$/realtime-traveller-stats-service/realtime-traveller-stats.iml" />
+      <module fileurl="file://$PROJECT_DIR$/preclearancestats-service/realtime-traveller-stats.iml" filepath="$PROJECT_DIR$/preclearancestats-service/realtime-traveller-stats.iml" />
       <module fileurl="file://$PROJECT_DIR$/refdata-service/refdata-service.iml" filepath="$PROJECT_DIR$/refdata-service/refdata-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/rulebase-service/rulebase.iml" filepath="$PROJECT_DIR$/rulebase-service/rulebase.iml" />
       <module fileurl="file://$PROJECT_DIR$/zipkin-service/zipkin.iml" filepath="$PROJECT_DIR$/zipkin-service/zipkin.iml" />

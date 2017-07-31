@@ -5,7 +5,7 @@
     <file url="file://$PROJECT_DIR$/admin-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/config-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/discovery-service" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/realtime-traveller-stats-service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/preclearancestats-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/refdata-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/rulebase-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/zipkin-service" charset="UTF-8" />

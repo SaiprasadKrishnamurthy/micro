@@ -8,7 +8,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>refdata-service</name>
+    <name>Microservice RefData servicerefdata-service</name>
     <description>Reference Data Service</description>
 
     <parent>

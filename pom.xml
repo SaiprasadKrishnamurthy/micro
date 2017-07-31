@@ -7,7 +7,7 @@
     <artifactId>microservice-basic-example</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
-    <name>microservice-basic-example</name>
+    <name>Microservices Parent</name>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
