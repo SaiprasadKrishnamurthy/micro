@@ -6,6 +6,7 @@ import com.hazelcast.config.JoinConfig;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ITopic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -71,12 +72,8 @@ public class RefDataApp {
         @Bean
         HazelcastInstance instance() {
             Config config = new Config();
-            NetworkConfig network = config.getNetworkConfig();
-
-            JoinConfig join = network.getJoin();
-            join.getAwsConfig().setEnabled(false);
-            join.getMulticastConfig().setEnabled(false);
-            join.getTcpIpConfig().setEnabled(true);
+            config.getNetworkConfig().getJoin().getTcpIpConfig().addMember("localhost").setEnabled(true);
+            config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
             return Hazelcast.newHazelcastInstance(config);
         }
     }
@@ -99,12 +96,12 @@ public class RefDataApp {
 
         @Scheduled(fixedRate = 1000L)
         void fireMessages() throws IOException {
+            ITopic<String> topic = instance.getTopic("PreclearanceEvents");
             String line = lines.get(random.nextInt(lines.size()));
             Map payload = objectMapper.readValue(line, Map.class);
             payload.put("value", random.nextInt(10));
             payload.put("color", "orange");
-
-
+            topic.publish(objectMapper.writeValueAsString(payload));
         }
     }
 

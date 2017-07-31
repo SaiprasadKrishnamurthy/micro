@@ -23,6 +23,7 @@
         <module>zipkin-service</module>
         <module>refdata-service</module>
         <module>rulebase-service</module>
+        <module>realtime-traveller-stats-service</module>
     </modules>
 
     <build>

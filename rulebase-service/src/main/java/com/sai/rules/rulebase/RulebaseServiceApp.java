@@ -1,10 +1,5 @@
 package com.sai.rules.rulebase;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.JoinConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +17,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -99,22 +93,5 @@ class FlightRoutesRestAPI {
         } finally {
             tracer.close(span);
         }
-    }
-}
-
-
-@Service
-class PreclearanceMessageListener {
-
-    @Bean
-    HazelcastInstance instance() {
-        Config config = new Config();
-        NetworkConfig network = config.getNetworkConfig();
-
-        JoinConfig join = network.getJoin();
-        join.getAwsConfig().setEnabled(false);
-        join.getMulticastConfig().setEnabled(false);
-        join.getTcpIpConfig().setEnabled(true);
-        return Hazelcast.newHazelcastInstance(config);
     }
 }

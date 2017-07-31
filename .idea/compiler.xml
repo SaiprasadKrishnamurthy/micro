@@ -9,6 +9,7 @@
         <module name="admin" />
         <module name="config" />
         <module name="discovery-service" />
+        <module name="realtime-traveller-stats" />
         <module name="refdata-service" />
         <module name="rulebase" />
         <module name="zipkin" />
@@ -19,6 +20,7 @@
       <module name="config" target="1.8" />
       <module name="discovery-service" target="1.8" />
       <module name="microservice-basic-example" target="1.8" />
+      <module name="realtime-traveller-stats" target="1.8" />
       <module name="refdata-service" target="1.8" />
       <module name="rulebase" target="1.8" />
       <module name="zipkin" target="1.8" />
