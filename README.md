@@ -41,6 +41,17 @@ You should see all the services started up and they will have their own logs at 
 * As the server ports are completely dynamic, we can get the service endpoint only through the discovery service.
 * Open the discovery service in a browser:  http://localhost:8761/
 * This will show all the registered services.
+* Click on the link against:  RULEBASE-SERVICE
+* Send a few requests -
+    * http://<DOMAIN:PORT>/flights/LHR/JFK
+    * http://<DOMAIN:PORT>/flights/LHR/CDG
+    * http://<DOMAIN:PORT>/flights/LHR/MAA
+    * http://<DOMAIN:PORT>/popular-routes
+* Back to your Discovery Service UI, Click on the link against:  ADMIN-SERVICE - This will take you the admin UI which shows the monitoring stats of the running microservices.
+* Back to your Discovery Service UI, Click on the link against:  ZIPKIN - This will take you the zipkin UI which shows the log traces.
+
+
+
 
 
 ## License
