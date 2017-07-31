@@ -48,10 +48,6 @@ You should see all the services started up and they will have their own logs at 
 * Back to your Discovery Service UI, Click on the link against:  ADMIN-SERVICE - This will take you the admin UI which shows the monitoring stats of the running microservices.
 * Back to your Discovery Service UI, Click on the link against:  ZIPKIN - This will take you the zipkin UI which shows the log traces.
 
-
-
-
-
 ## License
 
 This project is licensed under Apache License 2.0.
