@@ -1,7 +1,5 @@
 # A Simple Recipe using Microservices with Spring Cloud
 
-Documentation is in progress..
-
 # Usecase
 
 ## Airlines Route Search Service
