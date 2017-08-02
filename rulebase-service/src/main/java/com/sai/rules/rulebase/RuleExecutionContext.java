@@ -1,6 +1,7 @@
 package com.sai.rules.rulebase;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.*;
 
@@ -8,6 +9,7 @@ import java.util.*;
  * Created by saipkri on 02/08/17.
  */
 @Data
+@ToString(exclude = {"stateVariables", "rulesExecutedChain"})
 public class RuleExecutionContext<T> {
     private RuleFamilyType ruleFamilyType;
     private String id = UUID.randomUUID().toString();

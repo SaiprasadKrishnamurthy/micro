@@ -1,13 +1,18 @@
 package com.sai.rules.rulebase;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.Setter;
 import org.easyrules.core.BasicRule;
 
 @Data
+@Setter
 public class RuleDefinition extends BasicRule {
 
     private final RuleFamilyType family;
-    private final RuleExecutionContext ruleExecutionContext;
+
+    @JsonIgnore
+    private RuleExecutionContext ruleExecutionContext;
     private final String when;
     private final String then;
     private final int priority;

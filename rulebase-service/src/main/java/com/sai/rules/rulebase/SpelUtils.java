@@ -15,6 +15,8 @@ public class SpelUtils {
     public static boolean eval(final RuleExecutionContext ruleExecutionContext, final String spelExpression) {
         StandardEvaluationContext simpleContext = new StandardEvaluationContext(ruleExecutionContext);
         simpleContext.setVariable("ctx", ruleExecutionContext);
+        System.out.println("\t\t "+ruleExecutionContext);
+        System.out.println("\t\t "+spelExpression);
         ExpressionParser parser = new SpelExpressionParser();
         return (Boolean) parser.parseExpression(spelExpression).getValue(simpleContext);
     }

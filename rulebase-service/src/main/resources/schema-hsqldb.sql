@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS RuleDefs(
   ,evaluationCondition      VARCHAR(400) NOT NULL
   ,executionAction      VARCHAR(400) NOT NULL
   ,active    VARCHAR(1) NOT NULL
-  ,priority    INTEGER NOT NULL,
-  ,shortCircuit    INTEGER NOT NULL
+  ,priority    INTEGER NOT NULL
+  ,shortCircuit    VARCHAR(1) NOT NULL
 );
 
 CREATE INDEX RuleDefs_Family ON RuleDefs (family);
