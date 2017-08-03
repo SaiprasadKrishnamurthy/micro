@@ -14,6 +14,7 @@ public class RuleExecutionContext<T> {
     private RuleFamilyType ruleFamilyType;
     private String id = UUID.randomUUID().toString();
     private T payload;
+    private boolean shortCircuited;
     private Map<String, Object> stateVariables = new HashMap<>();
     private List<RuleDefinition> rulesExecutedChain = new ArrayList<>();
 }

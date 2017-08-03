@@ -15,9 +15,7 @@ import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -128,6 +126,16 @@ class RulesRestAPI {
         }
     }
 
+    @PutMapping(value = "/rule", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> saveOrUpdateRule(@RequestBody final RuleDefinition ruleDefinition) throws Exception {
+        Span span = tracer.createSpan("/rules");
+        try {
+            rulesRepository.saveOrUpdateRule(ruleDefinition);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+        } finally {
+            tracer.close(span);
+        }
+    }
 
     @GetMapping("/rules/{family}")
     List<?> rulesForFamily(@PathVariable("family") final RuleFamilyType ruleFamilyType) {
@@ -204,7 +212,7 @@ class RulesRestAPI {
         List<RuleDefinition> allRules() {
             Span span = tracer.createSpan("RulesRepository::allRules");
             try {
-                String sql = "select * from RuleDefs where active='Y'";
+                String sql = "select * from RuleDefs";
                 return jdbcTemplate.query(sql, (rs, rowNum) -> {
                     RuleDefinition ruleDefinition = new RuleDefinition(rs.getString("name"),
                             rs.getString("description"),
@@ -214,6 +222,7 @@ class RulesRestAPI {
                             null,
                             rs.getInt("priority"),
                             rs.getString("shortCircuit").equalsIgnoreCase("y"));
+                    ruleDefinition.setActive(true);
                     return ruleDefinition;
                 });
             } finally {
@@ -221,10 +230,33 @@ class RulesRestAPI {
             }
         }
 
+        int saveOrUpdateRule(final RuleDefinition ruleDefinition) {
+            Span span = tracer.createSpan("RulesRepository::allRules");
+            try {
+                // short cut. bad practice. delete and insert
+                List existing = jdbcTemplate.queryForList("select * from RuleDefs where name=?", ruleDefinition.getName());
+                System.out.println(existing);
+                if (existing == null || existing.isEmpty()) {
+                    String sql = "insert into RuleDefs (name, description, family, evaluationCondition, executionAction, active, priority, shortcircuit) values(?,?,?,?,?,?,?,?)";
+                    int update = jdbcTemplate.update(sql, ruleDefinition.getName(), ruleDefinition.getDescription(), ruleDefinition.getFamily().toString(), ruleDefinition.getWhen(), ruleDefinition.getThen(), ruleDefinition.isActive() ? "Y" : "N", ruleDefinition.getPriority(), ruleDefinition.isShortCircuit() ? "Y" : "N");
+                    System.out.println("Rows inserted: " + update);
+                    return update;
+                } else {
+                    String sql = "update RuleDefs set description=?, family=?, evaluationCondition=?, executionAction=?, active=?, priority=?, shortcircuit=? where name=?";
+                    int update = jdbcTemplate.update(sql, ruleDefinition.getDescription(), ruleDefinition.getFamily().toString(), ruleDefinition.getWhen(), ruleDefinition.getThen(), ruleDefinition.isActive() ? "Y" : "N", ruleDefinition.getPriority(), ruleDefinition.isShortCircuit() ? "Y" : "N", ruleDefinition.getName());
+                    System.out.println("Rows updated: " + update);
+                    return update;
+                }
+            } finally {
+                tracer.close(span);
+            }
+        }
+
+
         List<RuleDefinition> rulesFor(final RuleFamilyType ruleFamilyType) {
             Span span = tracer.createSpan("RulesRepository::rulesFor");
             try {
-                String sql = "select * from RuleDefs where active='Y' and family=?";
+                String sql = "select * from RuleDefs where family=?";
                 return jdbcTemplate.query(sql, new Object[]{ruleFamilyType.toString()}, (rs, rowNum) -> {
                     RuleDefinition ruleDefinition = new RuleDefinition(rs.getString("name"),
                             rs.getString("description"),
