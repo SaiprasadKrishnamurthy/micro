@@ -10,4 +10,6 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 public @interface RuleLibrary {
     String documentation();
+
+    RuleFamilyType ruleFamily() default RuleFamilyType.NONE;
 }
