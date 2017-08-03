@@ -1,11 +1,11 @@
 package com.sai.rules.rulebase;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.easyrules.core.BasicRule;
+import org.springframework.util.StopWatch;
 
 @Data
 @NoArgsConstructor
@@ -21,6 +21,8 @@ public class RuleDefinition extends BasicRule {
     private int priority;
     private boolean shortCircuit;
     private boolean active;
+    @JsonIgnore
+    private final StopWatch stopWatch = new StopWatch();
 
     RuleDefinition(final String name, final String description, final RuleFamilyType family, final String when, final String then, final RuleExecutionContext ruleExecutionContext, int priority, boolean shortCircuit) {
         super(name, description);
@@ -35,13 +37,17 @@ public class RuleDefinition extends BasicRule {
 
     @Override
     public boolean evaluate() {
+        stopWatch.start();
         return !ruleExecutionContext.isShortCircuited() && SpelUtils.eval(ruleExecutionContext, when);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void execute() {
         ruleExecutionContext.getRulesExecutedChain().add(this);
         SpelUtils.execute(ruleExecutionContext, then);
         ruleExecutionContext.setShortCircuited(shortCircuit);
+        stopWatch.stop();
+        ruleExecutionContext.getRuleExecutionTimingsInMillis().put(this.name, stopWatch.getTotalTimeMillis());
     }
 }

@@ -17,4 +17,6 @@ public class RuleExecutionContext<T> {
     private boolean shortCircuited;
     private Map<String, Object> stateVariables = new HashMap<>();
     private List<RuleDefinition> rulesExecutedChain = new ArrayList<>();
+    private Map<String, Long> ruleExecutionTimingsInMillis = new LinkedHashMap<>();
+
 }

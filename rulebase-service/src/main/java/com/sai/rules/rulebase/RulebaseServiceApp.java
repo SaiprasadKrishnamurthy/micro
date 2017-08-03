@@ -256,7 +256,7 @@ class RulesRestAPI {
         List<RuleDefinition> rulesFor(final RuleFamilyType ruleFamilyType) {
             Span span = tracer.createSpan("RulesRepository::rulesFor");
             try {
-                String sql = "select * from RuleDefs where family=?";
+                String sql = "select * from RuleDefs where family=? order by priority";
                 return jdbcTemplate.query(sql, new Object[]{ruleFamilyType.toString()}, (rs, rowNum) -> {
                     RuleDefinition ruleDefinition = new RuleDefinition(rs.getString("name"),
                             rs.getString("description"),
