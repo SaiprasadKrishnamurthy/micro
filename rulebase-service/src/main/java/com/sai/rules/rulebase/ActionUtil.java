@@ -2,7 +2,6 @@ package com.sai.rules.rulebase;
 
 import com.google.common.collect.Lists;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,8 +23,9 @@ public class ActionUtil {
 
     @RuleLibrary(documentation = "Records the rule that's matched")
     public static void recordMatch(final RuleExecutionContext ruleExecutionContext) {
+        System.out.println(" ------ " + ruleExecutionContext);
         ruleExecutionContext.getStateVariables()
                 .compute("RECORDED_MATCHES",
-                        (k, v) -> (v == null) ? new ArrayList<>() : Lists.newArrayList(ruleExecutionContext.getRulesExecutedChain().get(ruleExecutionContext.getRulesExecutedChain().size() - 1)));
+                        (k, v) -> (v == null) ? Lists.newArrayList(ruleExecutionContext.getRulesExecutedChain().get(ruleExecutionContext.getRulesExecutedChain().size() - 1)) : ((List) v).add(ruleExecutionContext.getRulesExecutedChain().get(ruleExecutionContext.getRulesExecutedChain().size() - 1)));
     }
 }

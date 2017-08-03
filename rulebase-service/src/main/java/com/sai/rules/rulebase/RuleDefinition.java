@@ -45,7 +45,9 @@ public class RuleDefinition extends BasicRule {
     @SuppressWarnings("unchecked")
     public void execute() {
         ruleExecutionContext.getRulesExecutedChain().add(this);
+        System.out.println("B4 spel --- "+then);
         SpelUtils.execute(ruleExecutionContext, then);
+        System.out.println("After spel --- "+then);
         ruleExecutionContext.setShortCircuited(shortCircuit);
         stopWatch.stop();
         ruleExecutionContext.getRuleExecutionTimingsInMillis().put(this.name, stopWatch.getTotalTimeMillis());
