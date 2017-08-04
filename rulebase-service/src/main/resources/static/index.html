@@ -8,32 +8,51 @@
     <script src="/snap.svg-min.js"></script>
     <script src="/underscore-min.js"></script>
     <script src="/sequence-diagram-min.js"></script>
-</head>
-<body>
-<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
-    enabled. Please enable
-    Javascript and reload this page!</h2></noscript>
-<div id="main-content" class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="diagram">A->B: Message</div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="diagram">A->B: Message</div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="diagram">A->B: Message</div>
-        </div>
-    </div>
-
+    <script src="/angular.min.js"></script>
     <script>
-                $(".diagram").sequenceDiagram({theme: 'simple'});
-            </script>
-    </form>
-</div>
+        var app = angular.module("myApp", []);
+        app.controller("myCtrl", function($scope, $http) {
+            $http.get('/ruleaudits').
+                then(function(response) {
+                $scope.ruleaudits = response.data;
+                $scope.draw = function(){
+                    $(".diagram").sequenceDiagram({theme: 'simple'});
+                }
+            });
+        });
+
+    </script>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+<form>
+    <noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript
+        being
+        enabled. Please enable
+        Javascript and reload this page!</h2></noscript>
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Rules Viz</a>
+            </div>
+        </div>
+    </nav>
+    <div id="main-content" class="container">
+        <div class="row" ng-repeat="x in ruleaudits">
+            <div class="panel panel-primary">
+                <div class="panel-heading">Transaction ID: {{ x.ID }}, Rule family: {{ x.FAMILY }}</div>
+                <div class="panel-body">
+                    <div class="col-md-12">
+                        <div class="well">
+                            <div class="diagram">{{x.TRACETEXT}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr/>
+        </div>
+        <div id="ss">{{ draw() }}...</div>
+    </div>
+</form>
 </body>
 </html>

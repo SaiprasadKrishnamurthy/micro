@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
@@ -147,8 +148,18 @@ class RulesRestAPI {
         }
     }
 
+    @GetMapping("/ruleaudits")
+    List<?> ruleAudits() {
+        Span span = tracer.createSpan("/rules/{family}");
+        try {
+            return rulesRepository.getTraces();
+        } finally {
+            tracer.close(span);
+        }
+    }
+
     @PostMapping("/ruleresult/{family}")
-    RuleExecutionContext ruleresult(@PathVariable("family") final RuleFamilyType ruleFamilyType, @RequestBody Map payload) {
+    RuleExecutionContext ruleresult(@PathVariable("family") final RuleFamilyType ruleFamilyType, @RequestBody Map payload, @RequestParam(value = "trace", defaultValue = "true") boolean trace) {
         Span span = tracer.createSpan("/ruleresult/{family}");
         try {
             // Set up the context per transaction.
@@ -157,6 +168,9 @@ class RulesRestAPI {
             context.setRuleFamilyType(ruleFamilyType);
             RulesEngine ruleEngine = ruleEngineFactory.ruleEngineFor(context);
             ruleEngine.fireRules();
+            if (trace) {
+                rulesRepository.saveTrace(context);
+            }
             return context;
         } finally {
             tracer.close(span);
@@ -173,6 +187,7 @@ class RulesRestAPI {
         private RulesRepository rulesRepository;
 
         public RulesEngine ruleEngineFor(final RuleExecutionContext<? extends Object> ruleExecutionContext) {
+            // Should be moved to AOP and can be supplemented with annotations (as an optional item).
             Span span = tracer.createSpan("RuleEngineFactory::ruleEngineFor");
 
             try {
@@ -272,5 +287,33 @@ class RulesRestAPI {
                 tracer.close(span);
             }
         }
+
+        @Async
+        public void saveTrace(final RuleExecutionContext<Map> context) {
+            StringBuilder out = new StringBuilder();
+            for (int i = 0; i < context.getRulesExecutedChain().size() - 1; i++) {
+                RuleDefinition curr = context.getRulesExecutedChain().get(i);
+                RuleDefinition next = context.getRulesExecutedChain().get(i + 1);
+                if (context.isShortCircuited()) {
+                    out.append(" This rule execution was short circuited\n");
+                }
+                out.append(curr.getName())
+                        .append(" (")
+                        .append(context.getRuleExecutionTimingsInMillis().get(curr.getName())).append(" ms) ")
+                        .append("->")
+                        .append(next.getName())
+                        .append(" (")
+                        .append(context.getRuleExecutionTimingsInMillis().get(next.getName())).append(" ms) ")
+                        .append(":NEXT RULE")
+                        .append("\n");
+            }
+            String sql = "insert into RuleAudits(id, family, traceText) values (?,?,?)";
+            jdbcTemplate.update(sql, context.getId(), context.getRuleFamilyType().toString(), out.toString());
+        }
+
+        public List<Map<String, Object>> getTraces() {
+            return jdbcTemplate.queryForList("select * from RuleAudits");
+        }
+
     }
 }

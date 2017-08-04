@@ -9,6 +9,12 @@ CREATE TABLE IF NOT EXISTS RuleDefs(
   ,shortCircuit    VARCHAR(1) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS RuleAudits (
+   id VARCHAR(80) PRIMARY KEY
+  ,family     VARCHAR(30) NOT NULL
+  ,traceText     VARCHAR(1000) NOT NULL
+);
+
 CREATE INDEX RuleDefs_Family ON RuleDefs (family);
 CREATE INDEX RuleDefs_Active ON RuleDefs (active);
 
