@@ -294,9 +294,6 @@ class RulesRestAPI {
             for (int i = 0; i < context.getRulesExecutedChain().size() - 1; i++) {
                 RuleDefinition curr = context.getRulesExecutedChain().get(i);
                 RuleDefinition next = context.getRulesExecutedChain().get(i + 1);
-                if (context.isShortCircuited()) {
-                    out.append(" This rule execution was short circuited\n");
-                }
                 out.append(curr.getName())
                         .append(" (")
                         .append(context.getRuleExecutionTimingsInMillis().get(curr.getName())).append(" ms) ")
@@ -307,12 +304,12 @@ class RulesRestAPI {
                         .append(":NEXT RULE")
                         .append("\n");
             }
-            String sql = "insert into RuleAudits(id, family, traceText) values (?,?,?)";
-            jdbcTemplate.update(sql, context.getId(), context.getRuleFamilyType().toString(), out.toString());
+            String sql = "insert into RuleAudits(id, family, traceText, created) values (?,?,?,?)";
+            jdbcTemplate.update(sql, context.getId(), context.getRuleFamilyType().toString(), out.toString(), System.currentTimeMillis());
         }
 
         public List<Map<String, Object>> getTraces() {
-            return jdbcTemplate.queryForList("select * from RuleAudits");
+            return jdbcTemplate.queryForList("select * from RuleAudits order by created desc");
         }
 
     }

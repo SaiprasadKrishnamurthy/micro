@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS RuleAudits (
    id VARCHAR(80) PRIMARY KEY
   ,family     VARCHAR(30) NOT NULL
   ,traceText     VARCHAR(1000) NOT NULL
+  ,created DOUBLE NOT NULL
 );
 
 CREATE INDEX RuleDefs_Family ON RuleDefs (family);
