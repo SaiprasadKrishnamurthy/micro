@@ -31,7 +31,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -124,6 +127,23 @@ class RuleLibraryHolder {
     private List<Method> methods;
 }
 
+@AllArgsConstructor
+@Data
+@NoArgsConstructor
+class RuleFunction {
+    private String name;
+    private String documentation;
+    private List<String> argTypes;
+}
+
+@AllArgsConstructor
+@Data
+@NoArgsConstructor
+class RuleLibraryInfo {
+    private String clazz;
+    private String clazzDocumentation;
+    private List<RuleFunction> functions;
+}
 
 @RestController
 @RefreshScope
@@ -171,12 +191,19 @@ class RulesRestAPI {
         }
     }
 
-    @GetMapping("/rulelibrary/instances")
+    @GetMapping("/rulelibrary")
     List<?> rulelibraries() {
-        Span span = tracer.createSpan("rulelibrary/instances");
+        Span span = tracer.createSpan("rulelibrary");
         try {
             return rulesRepository.getRuleLibraryHolders().stream()
-                    .map(RuleLibraryHolder::getName)
+                    .map(ruleLibraryHolder -> {
+                        String clazz = ruleLibraryHolder.getName();
+                        List<RuleFunction> ruleFunctions = ruleLibraryHolder.getMethods().stream()
+                                .filter(m -> m.getDeclaredAnnotations().length > 0)
+                                .map(m -> new RuleFunction(m.getName(), m.getAnnotation(RuleLibrary.class).documentation(), Stream.of(m.getParameterTypes()).map(Class::getName).collect(Collectors.toList())))
+                                .collect(Collectors.toList());
+                        return new RuleLibraryInfo(clazz, "", ruleFunctions);
+                    })
                     .collect(Collectors.toList());
         } finally {
             tracer.close(span);
