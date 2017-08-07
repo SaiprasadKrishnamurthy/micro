@@ -21,6 +21,14 @@
             });
         });
     </script>
+    <style>
+        .panel {
+           overflow: auto;
+        }
+        .panel {
+           overflow: auto;
+        }
+    </style>
 </head>
 <body ng-app="myApp" ng-controller="myCtrl">
 <form>
@@ -38,13 +46,11 @@
     </nav>
     <div id="main-content" class="container">
         <div class="row" ng-repeat="x in ruleaudits">
-            <div class="panel panel-primary">
+            <div class="panel">
                 <div class="panel-heading">Transaction ID: {{ x.ID }}, Rule family: {{ x.FAMILY }}</div>
                 <div class="panel-body">
                     <div class="col-md-12">
-                        <div class="well">
                             <div class="diagram">{{x.TRACETEXT}}</div>
-                        </div>
                     </div>
                 </div>
             </div>

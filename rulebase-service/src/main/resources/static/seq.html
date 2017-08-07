@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<meta name="robots" content="noindex">
+<html>
+<head>
+    <link href="mermaid.css" rel="stylesheet">
+    <script src="mermaid.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Sequence Diagram</title>
+</head>
+<body>
+<div class="mermaid">
+    sequenceDiagram
+    CountryOfBirth...->>CountryOfBirth...: evaluation time 3 ms
+    CountryOfBirth...->>NationalityChec...: NEXT RULE
+    NationalityChec...->>NationalityChec...: evaluation time 3 ms
+    NationalityChec...->>EventTypeAnd...:NEXT RULE
+    EventTypeAnd...->>EventTypeAnd...: evaluation time 2 ms
+    EventTypeAnd...->>GenderCheckRule:NEXT RULE
+    GenderCheckRule->>GenderCheckRule:evaluation time 2 ms
+
+    Note over CountryOfBirth...: RuleName: CountryOfBirth<br/>CheckRule
+    Note over NationalityChec...: RuleName: Nationality<br/>CheckRule
+    Note over EventTypeAnd...: RuleName: EventTypeAnd<br/>SubtypeCheckRule
+    Note over GenderCheckRule: RuleName: GenderCheckRule
+    Note right of GenderCheckRule: Short Circuited
+</div>
+<script>mermaid.initialize({startOnLoad:true});</script>
+</body>
+</html>

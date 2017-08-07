@@ -386,12 +386,14 @@ class RulesRestAPI {
                 RuleDefinition curr = context.getRulesExecutedChain().get(i);
                 RuleDefinition next = context.getRulesExecutedChain().get(i + 1);
                 out.append(curr.getName())
-                        .append(" (")
-                        .append(context.getRuleExecutionTimingsInMillis().get(curr.getName())).append(" ms) ")
+                        .append("->")
+                        .append(curr.getName())
+                        .append(":evaluation/execution time: ")
+                        .append(context.getRuleExecutionTimingsInMillis().get(next.getName())).append(" ms) ")
+                        .append("\n");
+                out.append(curr.getName())
                         .append("->")
                         .append(next.getName())
-                        .append(" (")
-                        .append(context.getRuleExecutionTimingsInMillis().get(next.getName())).append(" ms) ")
                         .append(":NEXT RULE")
                         .append("\n");
             }
