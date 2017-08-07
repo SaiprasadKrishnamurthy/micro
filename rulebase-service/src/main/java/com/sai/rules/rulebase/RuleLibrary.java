@@ -7,7 +7,7 @@ import java.lang.annotation.*;
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
+@Target(value = {ElementType.METHOD, ElementType.TYPE})
 public @interface RuleLibrary {
     String documentation();
 

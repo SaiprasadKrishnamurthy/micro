@@ -1,7 +1,12 @@
 package com.sai.rules.rulebase;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.easyrules.api.RulesEngine;
+import org.jooq.lambda.Unchecked;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -14,7 +19,9 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.sleuth.Span;
 import org.springframework.cloud.sleuth.Tracer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -23,6 +30,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,7 +50,11 @@ public class RulebaseServiceApp {
 }
 
 @Configuration
+@Data
 class RulebaseConfiguration {
+
+    @Value("${ruleLibraryBasePkgs}")
+    private String ruleLibraryBasePkgs;
 
     @LoadBalanced
     @Bean
@@ -101,6 +114,16 @@ class FlightRoutesRestAPI {
     }
 }
 
+@AllArgsConstructor
+@Data
+@NoArgsConstructor
+class RuleLibraryHolder {
+    private Class<?> clazz;
+    private String name;
+    private Object instance;
+    private List<Method> methods;
+}
+
 
 @RestController
 @RefreshScope
@@ -143,6 +166,18 @@ class RulesRestAPI {
         Span span = tracer.createSpan("/rules/{family}");
         try {
             return rulesRepository.rulesFor(ruleFamilyType);
+        } finally {
+            tracer.close(span);
+        }
+    }
+
+    @GetMapping("/rulelibrary/instances")
+    List<?> rulelibraries() {
+        Span span = tracer.createSpan("rulelibrary/instances");
+        try {
+            return rulesRepository.getRuleLibraryHolders().stream()
+                    .map(RuleLibraryHolder::getName)
+                    .collect(Collectors.toList());
         } finally {
             tracer.close(span);
         }
@@ -216,12 +251,33 @@ class RulesRestAPI {
 
         private final JdbcTemplate jdbcTemplate;
 
-        @Autowired
-        private Tracer tracer;
+        private final Tracer tracer;
+
+        private final RulebaseConfiguration rulebaseConfiguration;
+        private List<RuleLibraryHolder> ruleLibraryHolders;
+
 
         @Autowired
-        RulesRepository(final JdbcTemplate jdbcTemplate) {
+        RulesRepository(final JdbcTemplate jdbcTemplate, final Tracer tracer, final RulebaseConfiguration rulebaseConfiguration) {
             this.jdbcTemplate = jdbcTemplate;
+            this.tracer = tracer;
+            this.rulebaseConfiguration = rulebaseConfiguration;
+            loadRuleLibraries();
+        }
+
+        private void loadRuleLibraries() {
+            String[] rulebaseBasePkg = rulebaseConfiguration.getRuleLibraryBasePkgs().split(",");
+            ClassPathScanningCandidateComponentProvider scanner =
+                    new ClassPathScanningCandidateComponentProvider(true);
+            scanner.addIncludeFilter(new AnnotationTypeFilter(RuleLibrary.class));
+            ruleLibraryHolders = Stream.of(rulebaseBasePkg)
+                    .flatMap(pkg -> scanner.findCandidateComponents(pkg).stream())
+                    .map(bd -> Unchecked.function(dontCare -> {
+                        Class<?> clazz = Class.forName(bd.getBeanClassName());
+                        return new RuleLibraryHolder(clazz, StringUtils.uncapitalize(clazz.getSimpleName()), clazz.newInstance(), Arrays.asList(clazz.getDeclaredMethods()));
+                    }))
+                    .map(f -> f.apply(null))
+                    .collect(Collectors.toList());
         }
 
         List<RuleDefinition> allRules() {
@@ -243,6 +299,10 @@ class RulesRestAPI {
             } finally {
                 tracer.close(span);
             }
+        }
+
+        public List<RuleLibraryHolder> getRuleLibraryHolders() {
+            return this.ruleLibraryHolders;
         }
 
         int saveOrUpdateRule(final RuleDefinition ruleDefinition) {
