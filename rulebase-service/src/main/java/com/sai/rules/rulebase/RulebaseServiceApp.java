@@ -31,9 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +50,8 @@ public class RulebaseServiceApp {
 @Configuration
 @Data
 class RulebaseConfiguration {
+
+    public static List<Method> LIB_METHODS = new ArrayList<>();
 
     @Value("${ruleLibraryBasePkgs}")
     private String ruleLibraryBasePkgs;
@@ -268,7 +268,7 @@ class RulesRestAPI {
         private void loadRuleLibraries() {
             String[] rulebaseBasePkg = rulebaseConfiguration.getRuleLibraryBasePkgs().split(",");
             ClassPathScanningCandidateComponentProvider scanner =
-                    new ClassPathScanningCandidateComponentProvider(true);
+                    new ClassPathScanningCandidateComponentProvider(false);
             scanner.addIncludeFilter(new AnnotationTypeFilter(RuleLibrary.class));
             ruleLibraryHolders = Stream.of(rulebaseBasePkg)
                     .flatMap(pkg -> scanner.findCandidateComponents(pkg).stream())
@@ -277,6 +277,10 @@ class RulesRestAPI {
                         return new RuleLibraryHolder(clazz, StringUtils.uncapitalize(clazz.getSimpleName()), clazz.newInstance(), Arrays.asList(clazz.getDeclaredMethods()));
                     }))
                     .map(f -> f.apply(null))
+                    .map(ruleLibraryHolder -> {
+                        RulebaseConfiguration.LIB_METHODS.addAll(ruleLibraryHolder.getMethods());
+                        return ruleLibraryHolder;
+                    })
                     .collect(Collectors.toList());
         }
 
