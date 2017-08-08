@@ -93,7 +93,7 @@ You should see all the services started up and they will have their own logs at 
 	"eventSubtype": "BOOKING"
 }
 ```
-* To see the Audit of the rules, go to http://<HOST>:<PORT>/ on your browser.
+* To see the Audit of the rules, go to http://<HOST>:<PORT>/ on your browser. (A simple UI built using AngularJS and Bootstrap)
 
 
 
