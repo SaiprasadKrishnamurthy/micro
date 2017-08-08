@@ -144,7 +144,7 @@ public class IrisClassification {
         }
     }
 
-    public static void main(String[] args) {
+    public static void mains(String[] args) {
         IrisClassification prg = new IrisClassification();
         prg.run(args);
     }
