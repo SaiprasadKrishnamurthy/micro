@@ -80,10 +80,10 @@ You should see all the services started up and they will have their own logs at 
 ```
 
 ## Useful endpoints of RuleBase Microservice
-* http://<HOST>:<PORT>/rules - Gives you a list of rules available in the repository.
-* http://<HOST>:<PORT>/rulelibrary - Gives you a list of library functions (business logic) available to use within the rules.
-* To create or update a rule, use POSTMAN (or any rest client) and send your rule JSON to this endpoint: http://<HOST>:<PORT>/rule aas a **PUT** request.
-* To execute rules, POST the below payload JSON to this URL: http://<HOST>:<PORT>/ruleresult/RISK_RULE
+* http://HOST:PORT/rules - Gives you a list of rules available in the repository.
+* http://HOST:PORT/rulelibrary - Gives you a list of library functions (business logic) available to use within the rules.
+* To create or update a rule, use POSTMAN (or any rest client) and send your rule JSON to this endpoint: http://HOST:PORT/rule aas a **PUT** request.
+* To execute rules, POST the below payload JSON to this URL: http://HOST:PORT/ruleresult/RISK_RULE
 ```
 {
 	"nationality": "IN",
@@ -93,7 +93,7 @@ You should see all the services started up and they will have their own logs at 
 	"eventSubtype": "BOOKING"
 }
 ```
-* To see the Audit of the rules, go to http://<HOST>:<PORT>/ on your browser. (A simple UI built using AngularJS and Bootstrap)
+* To see the Audit of the rules, go to http://HOST:PORT/ on your browser. (A simple UI built using AngularJS and Bootstrap)
 
 
 
