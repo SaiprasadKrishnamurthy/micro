@@ -17,6 +17,7 @@ public class SpelUtils {
     }
 
     public static boolean eval(final RuleExecutionContext ruleExecutionContext, final String spelExpression) {
+        // TODO do not construct every time.
         StandardEvaluationContext simpleContext = new StandardEvaluationContext(ruleExecutionContext);
         simpleContext.setVariable("ctx", ruleExecutionContext);
         RulebaseConfiguration.LIB_METHODS.forEach(m -> {
@@ -28,6 +29,7 @@ public class SpelUtils {
     }
 
     public static void execute(final RuleExecutionContext ruleExecutionContext, final String spelExpression) {
+        // TODO do not construct every time.
         StandardEvaluationContext simpleContext = new StandardEvaluationContext(ruleExecutionContext);
         simpleContext.setVariable("ctx", ruleExecutionContext);
         RulebaseConfiguration.LIB_METHODS.forEach(m -> simpleContext.registerFunction(m.getName(), m));
