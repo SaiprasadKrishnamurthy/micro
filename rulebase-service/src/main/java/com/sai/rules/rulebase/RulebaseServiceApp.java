@@ -1,9 +1,10 @@
 package com.sai.rules.rulebase;
 
+import com.google.common.base.Predicates;
+import io.swagger.annotations.Api;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.easyrules.api.RulesEngine;
 import org.jooq.lambda.Unchecked;
@@ -29,6 +30,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -44,6 +52,7 @@ import static org.easyrules.core.RulesEngineBuilder.aNewRulesEngine;
 @EnableAutoConfiguration
 @SpringBootApplication
 @EnableFeignClients
+@EnableSwagger2
 public class RulebaseServiceApp {
     public static void main(String[] args) {
         SpringApplication.run(RulebaseServiceApp.class, args);
@@ -64,8 +73,28 @@ class RulebaseConfiguration {
     RestTemplate restTemplate() {
         return new RestTemplate();
     }
+
+    @Bean
+    public Docket resolverApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("rulebase-service")
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(Predicates.not(PathSelectors.regex("/error"))) // Exclude Spring error controllers
+                .build();
+    }
+
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("Rulebase REST API")
+                .description("Rulebase - RESTful API")
+                .version("alpha-1.0")
+                .build();
+    }
 }
 
+@Api("FlightRoutesRestAPI")
 @RestController
 @RefreshScope
 class FlightRoutesRestAPI {
@@ -147,6 +176,7 @@ class RuleLibraryInfo {
 
 @RestController
 @RefreshScope
+@Api("RulesRestAPI")
 class RulesRestAPI {
 
     private static final Logger LOG = Logger.getLogger(com.sai.rules.rulebase.FlightRoutesRestAPI.class.getName());
@@ -301,7 +331,7 @@ class RulesRestAPI {
                     .flatMap(pkg -> scanner.findCandidateComponents(pkg).stream())
                     .map(bd -> Unchecked.function(dontCare -> {
                         Class<?> clazz = Class.forName(bd.getBeanClassName());
-                        return new RuleLibraryHolder(clazz, StringUtils.uncapitalize(clazz.getSimpleName()), clazz.newInstance(), Arrays.asList(clazz.getDeclaredMethods()));
+                        return new RuleLibraryHolder(clazz, clazz.getSimpleName(), clazz.newInstance(), Arrays.asList(clazz.getDeclaredMethods()));
                     }))
                     .map(f -> f.apply(null))
                     .map(ruleLibraryHolder -> {

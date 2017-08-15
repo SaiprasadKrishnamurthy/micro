@@ -135,7 +135,7 @@ public class IrisClassification {
                 System.out.println(result.toString());
             }
 
-            // Delete data file ande shut down.
+            // Delete data file and shut down.
             irisFile.delete();
             Encog.getInstance().shutdown();
 
