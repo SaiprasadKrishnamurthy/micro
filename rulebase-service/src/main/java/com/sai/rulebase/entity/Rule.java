@@ -18,18 +18,18 @@ public class Rule {
     private String name;
     @Column
     private String description;
-    @Column(name = "evaluationCondition")
+    @Column(name = "EVALUATIONCONDITION")
     private String evaluationCondition;
-    @Column
+    @Column(name = "EXECUTIONACTION")
     private String executionAction;
     @Column
     private int priority;
-    @Column
+    @Column(name = "SHORTCIRCUIT")
     private boolean shortCircuit;
     @Column
     private boolean active;
     @Column
     private RuleFamilyType family;
-    @Column
+    @Column(name = "ABORTONERROR")
     private boolean abortOnError = true;
 }
