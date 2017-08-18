@@ -7,7 +7,7 @@ import javax.persistence.*;
 /**
  * Created by saipkri on 17/08/17.
  */
-@Entity
+//@Entity
 @Data
 public class RuleFlowEdge {
 

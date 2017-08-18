@@ -33,6 +33,7 @@ public class RulebaseApp {
     public CommandLineRunner demo(final RuleRepository ruleRepository) {
         return (args) -> {
             System.out.println(Iterables.toString(ruleRepository.findAll()));
+            System.out.println(" --------------- \n\n\n ");
 
         };
     }

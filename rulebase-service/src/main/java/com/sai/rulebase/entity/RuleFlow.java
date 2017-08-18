@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by saipkri on 16/08/17.
  */
-@Entity
+//@Entity
 @Data
 public class RuleFlow {
 
