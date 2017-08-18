@@ -2,9 +2,7 @@ package com.sai.rulebase.entity;
 
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Created by saipkri on 17/08/17.
@@ -14,6 +12,7 @@ import javax.persistence.Id;
 public class RuleFlowEdge {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column
