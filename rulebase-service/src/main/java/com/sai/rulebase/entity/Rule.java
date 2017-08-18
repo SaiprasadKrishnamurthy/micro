@@ -18,7 +18,7 @@ public class Rule {
     private String name;
     @Column
     private String description;
-    @Column
+    @Column(name = "evaluationCondition")
     private String evaluationCondition;
     @Column
     private String executionAction;
