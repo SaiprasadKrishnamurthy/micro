@@ -1,6 +1,10 @@
 package com.sai.rulebase;
 
 import com.google.common.collect.Iterables;
+import com.sai.rulebase.entity.Rule;
+import com.sai.rulebase.entity.RuleFlow;
+import com.sai.rulebase.entity.RuleFlowEdge;
+import com.sai.rulebase.repository.RuleFlowRepository;
 import com.sai.rulebase.repository.RuleRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +18,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by saipkri on 18/08/17.
@@ -30,11 +37,23 @@ public class RulebaseApp {
     private static final Logger log = LoggerFactory.getLogger(RulebaseApp.class);
 
     @Bean
-    public CommandLineRunner demo(final RuleRepository ruleRepository) {
+    public CommandLineRunner loadData(final RuleRepository ruleRepository, final RuleFlowRepository ruleFlowRepository) {
         return (args) -> {
-            System.out.println(Iterables.toString(ruleRepository.findAll()));
-            System.out.println(" --------------- \n\n\n ");
+            Iterable<Rule> all = ruleRepository.findAll();
+            Rule[] rules = Iterables.toArray(all, Rule.class);
 
+            List<RuleFlowEdge> edges = new ArrayList<>();
+            for (int i = 0; i < rules.length - 1; i++) {
+                RuleFlowEdge ruleFlowEdge = new RuleFlowEdge();
+                ruleFlowEdge.setRuleNameFrom(rules[i].getName());
+                ruleFlowEdge.setRuleNameTo(rules[i + 1].getName());
+                edges.add(ruleFlowEdge);
+            }
+            RuleFlow ruleFlow = new RuleFlow();
+            ruleFlow.setName("RiskRuleFlow");
+            ruleFlow.setDescription("Rule flow definition for risk rules");
+            ruleFlow.setEdges(edges);
+            ruleFlowRepository.save(ruleFlow);
         };
     }
 

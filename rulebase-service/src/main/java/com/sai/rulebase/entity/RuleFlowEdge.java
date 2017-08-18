@@ -7,7 +7,8 @@ import javax.persistence.*;
 /**
  * Created by saipkri on 17/08/17.
  */
-//@Entity
+@Entity
+@Table(name = "RULEFLOWEDGE")
 @Data
 public class RuleFlowEdge {
 
@@ -15,10 +16,11 @@ public class RuleFlowEdge {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column
+    @Column(name = "RULENAMEFROM")
     private String ruleNameFrom;
 
-    @Column
+    @Column(name = "RULENAMETO")
     private String ruleNameTo;
+
 
 }

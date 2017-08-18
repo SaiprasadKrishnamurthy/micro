@@ -8,7 +8,8 @@ import java.util.List;
 /**
  * Created by saipkri on 16/08/17.
  */
-//@Entity
+@Entity
+@Table(name = "RULEFLOW")
 @Data
 public class RuleFlow {
 
@@ -22,6 +23,7 @@ public class RuleFlow {
     @Column
     private String description;
 
-    @OneToMany
+    @JoinColumn(name="EDGES")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<RuleFlowEdge> edges;
 }

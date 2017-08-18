@@ -1,5 +1,6 @@
 package com.sai.rules.rulebase;
 
+import com.sai.rulebase.entity.Rule;
 import lombok.Data;
 import lombok.ToString;
 
@@ -16,7 +17,14 @@ public class RuleExecutionContext<T> {
     private T payload;
     private boolean shortCircuited;
     private Map<String, Object> stateVariables = new HashMap<>();
-    private List<RuleDefinition> rulesExecutedChain = new ArrayList<>();
+    private List<Rule> rulesExecutedChain = new ArrayList<>();
     private Map<String, Long> ruleExecutionTimingsInMillis = new LinkedHashMap<>();
+    private Map<String, String> erroredRules = new HashMap<>();
+
+    public static <T> RuleExecutionContext<T> newContext(final T payload) {
+        RuleExecutionContext<T> tRuleExecutionContext = new RuleExecutionContext<>();
+        tRuleExecutionContext.setPayload(payload);
+        return tRuleExecutionContext;
+    }
 
 }

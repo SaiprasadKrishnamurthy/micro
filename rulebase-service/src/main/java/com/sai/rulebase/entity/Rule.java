@@ -14,22 +14,35 @@ public class Rule {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @Column
     private String name;
+
     @Column
     private String description;
+
     @Column(name = "EVALUATIONCONDITION")
     private String evaluationCondition;
+
     @Column(name = "EXECUTIONACTION")
     private String executionAction;
+
     @Column
     private int priority;
+
     @Column(name = "SHORTCIRCUIT")
-    private boolean shortCircuit;
+    @Enumerated(value = EnumType.STRING)
+    private YesNoType shortCircuit;
+
     @Column
-    private boolean active;
+    @Enumerated(value = EnumType.STRING)
+    private YesNoType active;
+
     @Column
+    @Enumerated(value = EnumType.STRING)
     private RuleFamilyType family;
+
     @Column(name = "ABORTONERROR")
-    private boolean abortOnError = true;
+    @Enumerated(value = EnumType.STRING)
+    private YesNoType abortOnError = YesNoType.Y;
 }
