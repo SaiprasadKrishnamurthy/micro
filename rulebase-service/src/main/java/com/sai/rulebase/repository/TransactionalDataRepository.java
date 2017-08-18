@@ -29,6 +29,7 @@ public class TransactionalDataRepository {
         RuleFlow ruleFlow = ruleFlowRepository.findByName(ruleFlowName);
         ruleFlowEdges.putIfAbsent(ruleExecutionContext.getId(), ruleFlow.getEdges());
         contexts.putIfAbsent(ruleExecutionContext.getId(), ruleExecutionContext);
+        ruleExecutionContext.setRuleFlow(ruleFlow);
     }
 
     public Rule firstRule(final RuleExecutionContext<?> ruleExecutionContext) {
@@ -51,5 +52,10 @@ public class TransactionalDataRepository {
 
     public Rule ruleFor(final String ruleName) {
         return ruleRepository.findByName(ruleName);
+    }
+
+    public void clear(final String transactionId) {
+        ruleFlowEdges.remove(transactionId);
+        contexts.remove(transactionId);
     }
 }

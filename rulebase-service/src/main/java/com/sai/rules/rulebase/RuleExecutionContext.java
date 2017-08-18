@@ -1,6 +1,7 @@
 package com.sai.rules.rulebase;
 
 import com.sai.rulebase.entity.Rule;
+import com.sai.rulebase.entity.RuleFlow;
 import lombok.Data;
 import lombok.ToString;
 
@@ -20,6 +21,7 @@ public class RuleExecutionContext<T> {
     private List<Rule> rulesExecutedChain = new ArrayList<>();
     private Map<String, Long> ruleExecutionTimingsInMillis = new LinkedHashMap<>();
     private Map<String, String> erroredRules = new HashMap<>();
+    private RuleFlow ruleFlow;
 
     public static <T> RuleExecutionContext<T> newContext(final T payload) {
         RuleExecutionContext<T> tRuleExecutionContext = new RuleExecutionContext<>();

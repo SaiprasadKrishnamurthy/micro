@@ -49,7 +49,7 @@ public class RuleExecApi {
         // React to the response.
         bootstrap.getVertx().eventBus().consumer("DONE|" + ruleExecutionContext.getId(), msg -> {
             response.setResult(transactionalDataRepository.contextFor(ruleExecutionContext.getId()));
-            // TODO clear the transactional data.
+            transactionalDataRepository.clear(ruleExecutionContext.getId());
         });
         return response;
     }
