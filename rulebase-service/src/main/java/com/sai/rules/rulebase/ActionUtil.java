@@ -21,12 +21,4 @@ public class ActionUtil {
         ruleExecutionContext.getStateVariables().put("WatchlistResponse", "<WatchlistResponse />");
         ruleExecutionContext.getStateVariables().put("ProfilerResponse", "<ProfilerResponse />");
     }
-
-    @RuleLibrary(documentation = "Records the rule that's matched")
-    public static void recordMatch(final RuleExecutionContext ruleExecutionContext) {
-        System.out.println(" ------ " + ruleExecutionContext);
-        ruleExecutionContext.getStateVariables()
-                .compute("RECORDED_MATCHES",
-                        (k, v) -> (v == null) ? Lists.newArrayList(ruleExecutionContext.getRulesExecutedChain().get(ruleExecutionContext.getRulesExecutedChain().size() - 1)) : ((List) v).add(ruleExecutionContext.getRulesExecutedChain().get(ruleExecutionContext.getRulesExecutedChain().size() - 1)));
-    }
 }
