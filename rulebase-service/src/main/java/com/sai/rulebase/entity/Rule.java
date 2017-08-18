@@ -31,4 +31,6 @@ public class Rule {
     private boolean active;
     @Column
     private RuleFamilyType family;
+    @Column
+    private boolean abortOnError = true;
 }
