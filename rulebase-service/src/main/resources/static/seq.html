@@ -2,29 +2,264 @@
 <meta name="robots" content="noindex">
 <html>
 <head>
-    <link href="mermaid.css" rel="stylesheet">
-    <script src="mermaid.js"></script>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title>Sequence Diagram</title>
+    <script type="text/javascript" src="mermaid.js"></script>
+    <link href="mermaid.css" rel="stylesheet" type="text/css" />
+    <link href="bootstrap.min.css" rel="stylesheet">
+    <style>
+        .label{
+            color: #000
+        }
+    </style>
+
 </head>
 <body>
-<div class="mermaid">
-    sequenceDiagram
-    CountryOfBirth...->>CountryOfBirth...: evaluation time 3 ms
-    CountryOfBirth...->>NationalityChec...: NEXT RULE
-    NationalityChec...->>NationalityChec...: evaluation time 3 ms
-    NationalityChec...->>EventTypeAnd...:NEXT RULE
-    EventTypeAnd...->>EventTypeAnd...: evaluation time 2 ms
-    EventTypeAnd...->>GenderCheckRule:NEXT RULE
-    GenderCheckRule->>GenderCheckRule:evaluation time 2 ms
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Rules Viz</a>
+        </div>
+    </div>
+</nav>
+<div id="main-content" class="container">
+    <div class="row">
+        <div class="panel panel-primary">
+        <div class="panel-heading">Transaction: 88737738</div>
+            <div class="panel-body">
+                <div class="alert alert-danger" role="alert">
+                    RuleFlow: BiographicChecksFlow1
+                </div>
+                <div class="col-md-12">
+                    <div class="mermaid">
+                        graph LR
+                        A[Square Rect Square Rect Square Rect <br />Square Rect]  ==> B[Square Rect]
+                        B[Square Rect]  ==> C[Square Rect]
+                        C[Square Rect]  ==> D[Square Rect]
+                        D[Square Rect]  ==> E[Square Rect]
+                        E[Square Rect]  ==> F[Square Rect]
+                        F[Square Rect]  ==> G[Square Rect]
+                        G[Square Rect]  ==> I[Square Rect]
+                        I[Square Rect]  ==> J[Square Rect]
+                        J[Square Rect]  ==> K[Square Rect]
+                        K[Square Rect]  ==> M[Square Rect]
+                        M[Square Rect]  ==> N[Square Rect]
+                        A  ==> H[Square Rect]
+                        H  ==> D[Square Rect]
+                        classDef green fill:#9f6,stroke:#333,stroke-width:2px;
+                        classDef orange fill:#f96,stroke:#333,stroke-width:4px;
+                        class A,B,C,D,E,F,G,H,I,J,K,M,N green
+                        class F orange
+                    </div>
+                    <div class="col-md-2">
+                        <div class="jumbotron">
+                            <h2 class="display-4">6 ms</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Rule Name</th>
+                                <th>Description</th>
+                                <th>Execution Time in millis</th>
+                                <th>Short circuited</th>
+                                <th>Rule Definition</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <th scope="row">1</th>
+                                <td>NationalityCheckRule</td>
+                                <td>Rule that checks the nationality</td>
+                                <td>3</td>
+                                <td>N</td>
+                                <td><a href="#">click here</a></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">2</th>
+                                <td>DOBCheckRule</td>
+                                <td>Rule that checks the date of birth</td>
+                                <td>3</td>
+                                <td>N</td>
+                                <td><a href="#">click here</a></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">3</th>
+                                <td>GenderCheckRule</td>
+                                <td>Rule that checks the Gender</td>
+                                <td>3</td>
+                                <td>N</td>
+                                <td><a href="#">click here</a></td>
+                            </tr>
+                            <tr>
+                                <th scope="row">4</th>
+                                <td>PlaceOfBirthRule</td>
+                                <td>Rule that checks the Place of Birth</td>
+                                <td>3</td>
+                                <td>N</td>
+                                <td><a href="#">click here</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-    Note over CountryOfBirth...: RuleName: CountryOfBirth<br/>CheckRule
-    Note over NationalityChec...: RuleName: Nationality<br/>CheckRule
-    Note over EventTypeAnd...: RuleName: EventTypeAnd<br/>SubtypeCheckRule
-    Note over GenderCheckRule: RuleName: GenderCheckRule
-    Note right of GenderCheckRule: Short Circuited
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="panel panel-primary">
+            <div class="panel-heading">Transaction: 88737738</div>
+            <div class="panel-body">
+                <div class="alert alert-danger" role="alert">
+                    RuleFlow: BiographicChecksFlow2
+                </div>
+                <div class="col-md-12">
+                    <div class="mermaid">
+                        graph LR
+                        A[Square Rect Square Rect Square Rect <br />Square Rect]  ==> B[Square Rect]
+                        B[Square Rect]  ==> C[Square Rect]
+                        C[Square Rect]  ==> D[Square Rect]
+                        D[Square Rect]  ==> E[Square Rect]
+                        E[Square Rect]  ==> F[Square Rect]
+                        F[Square Rect]  ==> G[Square Rect]
+                        classDef green fill:#9f6,stroke:#333,stroke-width:2px;
+                        classDef orange fill:#f96,stroke:#333,stroke-width:4px;
+                        class A,B,C,D,E,F,G,H green
+                        class F orange
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="jumbotron">
+                        <h2 class="display-4">12 ms</h2>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Rule Name</th>
+                            <th>Description</th>
+                            <th>Execution Time in millis</th>
+                            <th>Short circuited</th>
+                            <th>Rule Definition</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>NationalityCheckRule</td>
+                            <td>Rule that checks the nationality</td>
+                            <td>3</td>
+                            <td>N</td>
+                            <td><a href="#">click here</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>DOBCheckRule</td>
+                            <td>Rule that checks the date of birth</td>
+                            <td>3</td>
+                            <td>N</td>
+                            <td><a href="#">click here</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>GenderCheckRule</td>
+                            <td>Rule that checks the Gender</td>
+                            <td>3</td>
+                            <td>N</td>
+                            <td><a href="#">click here</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">4</th>
+                            <td>PlaceOfBirthRule</td>
+                            <td>Rule that checks the Place of Birth</td>
+                            <td>3</td>
+                            <td>N</td>
+                            <td><a href="#">click here</a></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-primary">
+        <div class="panel-heading">Transaction: 88737738</div>
+            <div class="panel-body">
+                <div class="alert alert-success" role="alert">
+                    RuleFlow: BiographicChecksFlow1
+                </div>
+                <div class="col-md-12">
+                    <div class="mermaid">
+                        graph LR
+                        A[Square Rect Square Rect Square Rect <br />Square Rect]  ==> B[Square Rect]
+                        B[Square Rect]  ==> C[Square Rect]
+                        C[Square Rect]  ==> D[Square Rect]
+                        classDef green fill:#9f6,stroke:#333,stroke-width:2px;
+                        classDef orange fill:#f96,stroke:#333,stroke-width:4px;
+                        class A,B,C,D,E,F,G,H green
+                        class F orange
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="jumbotron">
+                        <h2 class="display-4">12 ms</h2>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Rule Name</th>
+                            <th>Description</th>
+                            <th>Execution Time in millis</th>
+                            <th>Short circuited</th>
+                            <th>Rule Definition</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>NationalityCheckRule</td>
+                            <td>Rule that checks the nationality</td>
+                            <td>3</td>
+                            <td>N</td>
+                            <td><a href="#">click here</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>DOBCheckRule</td>
+                            <td>Rule that checks the date of birth</td>
+                            <td>3</td>
+                            <td>N</td>
+                            <td><a href="#">click here</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>GenderCheckRule</td>
+                            <td>Rule that checks the Gender</td>
+                            <td>3</td>
+                            <td>N</td>
+                            <td><a href="#">click here</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">4</th>
+                            <td>PlaceOfBirthRule</td>
+                            <td>Rule that checks the Place of Birth</td>
+                            <td>3</td>
+                            <td>N</td>
+                            <td><a href="#">click here</a></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+<hr />
 <script>mermaid.initialize({startOnLoad:true});</script>
 </body>
 </html>
