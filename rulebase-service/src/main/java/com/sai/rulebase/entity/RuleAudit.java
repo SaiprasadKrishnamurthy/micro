@@ -79,18 +79,16 @@ public class RuleAudit {
         edges.forEach(ruleFlowEdgeSnapshot -> {
             out.append(ruleFlowEdgeSnapshot.getRuleNameFrom()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameFrom()).append("]");
             out.append("  ==>  ");
-            out.append(ruleFlowEdgeSnapshot.getRuleNameTo()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameTo()).append("]");
+            out.append(ruleFlowEdgeSnapshot.getRuleNameTo()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameTo() == null ? ruleFlowEdgeSnapshot.getRuleNameFrom() : ruleFlowEdgeSnapshot.getRuleNameTo()).append("]");
             out.append("\n");
             allRules.add(ruleFlowEdgeSnapshot.getRuleNameFrom());
             allRules.add(ruleFlowEdgeSnapshot.getRuleNameTo());
 
         });
         Set<String> notExecuted = allRules.stream()
+                .filter(Objects::nonNull)
                 .filter(name -> rules.stream().noneMatch(r -> name.equals(r.getName())))
                 .collect(Collectors.toSet());
-
-        String notExecutedRules = notExecuted.stream()
-                .collect(Collectors.joining(","));
 
         out.append("\n");
         out.append("classDef green fill:#9f6,stroke:#333,stroke-width:2px;").append("\n");

@@ -1,13 +1,16 @@
 package com.sai.rulebase;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterables;
 import com.sai.rulebase.entity.Rule;
 import com.sai.rulebase.entity.RuleFlow;
 import com.sai.rulebase.entity.RuleFlowEdge;
 import com.sai.rulebase.repository.RuleFlowRepository;
 import com.sai.rulebase.repository.RuleRepository;
+import com.sai.rulebase.rest.RuleExecApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -23,6 +26,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by saipkri on 18/08/17.
@@ -44,6 +48,9 @@ public class RulebaseApp {
         return new RestTemplate();
     }
 
+    @Autowired
+    private RuleExecApi ruleExecApi;
+
     @Bean
     public CommandLineRunner loadData(final RuleRepository ruleRepository, final RuleFlowRepository ruleFlowRepository) {
         return (args) -> {
@@ -51,17 +58,25 @@ public class RulebaseApp {
             Rule[] rules = Iterables.toArray(all, Rule.class);
 
             List<RuleFlowEdge> edges = new ArrayList<>();
-            for (int i = 0; i < rules.length - 1; i++) {
+            for (int i = 0; i < rules.length - 2; i++) {
                 RuleFlowEdge ruleFlowEdge = new RuleFlowEdge();
                 ruleFlowEdge.setRuleNameFrom(rules[i].getName());
                 ruleFlowEdge.setRuleNameTo(rules[i + 1].getName());
                 edges.add(ruleFlowEdge);
             }
+            RuleFlowEdge ruleFlowEdge = new RuleFlowEdge();
+            ruleFlowEdge.setRuleNameFrom(rules[0].getName());
+            ruleFlowEdge.setRuleNameTo(rules[rules.length - 1].getName());
+
+            edges.add(ruleFlowEdge);
+
             RuleFlow ruleFlow = new RuleFlow();
             ruleFlow.setName("RiskRuleFlow");
             ruleFlow.setDescription("Rule flow definition for risk rules");
             ruleFlow.setEdges(edges);
             ruleFlowRepository.save(ruleFlow);
+            System.out.println(ruleExecApi.ruleresult("RiskRuleFlow", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload.json"), Map.class)));
+            System.out.println(ruleExecApi.ruleresult("RiskRuleFlow", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload1.json"), Map.class)));
         };
     }
 
