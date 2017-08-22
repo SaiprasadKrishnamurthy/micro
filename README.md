@@ -94,6 +94,8 @@ You should see all the services started up and they will have their own logs at 
 }
 ```
 * To see the Audit of the rules, go to http://HOST:PORT/ on your browser. (A simple UI built using AngularJS and Bootstrap)
+** Here is what you'll see:
+![Rule audit](rule_audit.png?raw=true "Rule Audit ")
 
 
 

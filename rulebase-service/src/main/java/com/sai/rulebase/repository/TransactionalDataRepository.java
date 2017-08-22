@@ -7,6 +7,7 @@ import com.sai.rules.rulebase.RuleExecutionContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -43,8 +44,12 @@ public class TransactionalDataRepository {
 
     public List<Rule> nextRulesFor(final String transactionId, final String ruleName) {
         List<RuleFlowEdge> edges = ruleFlowEdges.get(transactionId);
+        if (edges == null) {
+            return Collections.emptyList();
+        }
         return edges.stream()
                 .filter(edge -> edge.getRuleNameFrom().equals(ruleName))
+                .filter(edge -> edge.getRuleNameTo() != null)
                 .map(RuleFlowEdge::getRuleNameTo)
                 .map(ruleRepository::findByName)
                 .collect(Collectors.toList());

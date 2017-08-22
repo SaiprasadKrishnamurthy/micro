@@ -70,6 +70,13 @@ public class RulebaseApp {
 
             edges.add(ruleFlowEdge);
 
+            RuleFlowEdge ruleFlowEdge1 = new RuleFlowEdge();
+            ruleFlowEdge1.setRuleNameFrom(ruleFlowEdge.getRuleNameTo());
+            ruleFlowEdge1.setRuleNameTo(rules[rules.length - 3].getName());
+
+            edges.add(ruleFlowEdge1);
+
+
             RuleFlow ruleFlow = new RuleFlow();
             ruleFlow.setName("RiskRuleFlow");
             ruleFlow.setDescription("Rule flow definition for risk rules");

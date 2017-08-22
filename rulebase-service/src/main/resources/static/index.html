@@ -23,7 +23,7 @@
             $scope.draw = function(id) {
                 setTimeout(function() {
                     mermaidAPI.render(id, $("#"+id).text().trim(), function(code, fns){document.getElementById(id).innerHTML=code});
-                }, 500);
+                }, 1);
             }
 
         });
