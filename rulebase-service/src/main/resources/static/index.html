@@ -1,63 +1,104 @@
 <!DOCTYPE html>
+<meta name="robots" content="noindex">
 <html>
 <head>
-    <title>Preclearance Nationalities</title>
+    <script type="text/javascript" src="/mermaid.js"></script>
+    <link href="/mermaid.css" rel="stylesheet" type="text/css"/>
     <link href="/bootstrap.min.css" rel="stylesheet">
     <script src="/jquery.min.js"></script>
-    <script src="webfont.js"></script>
+    <script src="/webfont.js"></script>
     <script src="/snap.svg-min.js"></script>
     <script src="/underscore-min.js"></script>
-    <script src="/sequence-diagram-min.js"></script>
     <script src="/angular.min.js"></script>
+    <script src="/angular.sanitize.js"></script>
+    <script src="/mermaid.js"></script>
     <script>
         var app = angular.module("myApp", []);
         app.controller("myCtrl", function($scope, $http) {
             $http.get('/ruleaudits').
                 then(function(response) {
                 $scope.ruleaudits = response.data;
-                $scope.draw = function(){
-                    $(".diagram").sequenceDiagram({theme: 'simple'});
-                }
             });
+
+            $scope.draw = function(id) {
+                setTimeout(function() {
+                    mermaidAPI.render(id, $("#"+id).text().trim(), function(code, fns){document.getElementById(id).innerHTML=code});
+                }, 500);
+            }
+
         });
+
+
+
     </script>
+
     <style>
-        .panel {
-           overflow: auto;
+        .label{
+            color: #000
         }
-        .panel {
-           overflow: auto;
-        }
+
+
+
     </style>
+
 </head>
 <body ng-app="myApp" ng-controller="myCtrl">
-<form>
-    <noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript
-        being
-        enabled. Please enable
-        Javascript and reload this page!</h2></noscript>
-    <nav class="navbar navbar-inverse">
-        <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">Rules Viz</a>
-            </div>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">Rules Viz</a>
         </div>
-    </nav>
-    <div id="main-content" class="container">
-        <div class="row" ng-repeat="x in ruleaudits">
-            <div class="panel">
-                <div class="panel-heading">Transaction ID: {{ x.ID }}, Rule family: {{ x.FAMILY }}</div>
-                <div class="panel-body">
-                    <div class="col-md-12">
-                            <div class="diagram">{{x.TRACETEXT}}</div>
+    </div>
+</nav>
+<div id="main-content" class="container">
+    <div class="row" ng-repeat="x in ruleaudits">
+        <div class="panel panel-primary">
+            <div class="panel-heading">Transaction: {{ x.transactionId }}</div>
+            <div class="panel-body">
+                <div class="alert alert-{{ x.labelType }}" role="alert">
+                    RuleFlow: {{ x.flowName }}
+                </div>
+                <div class="col-md-12">
+                    <div class="well" id="i{{ $index }}">
+                        {{ x.pipeline.trim() }}
                     </div>
+                    <div>{{ draw('i'+$index) }}</div>
+
+                    <div class="col-md-2">
+                        <div class="jumbotron">
+                            <h2 class="display-4">{{ x.totalTimeTakenInMillis }} ms</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Rule Name</th>
+                                <th>Execution Time in millis</th>
+                                <th>Status</th>
+                                <th>Rule Definition</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="y in x.ruleInfos">
+                                <th scope="row">{{ $index }}</th>
+                                <td>{{ y.ruleName }}</td>
+                                <td>{{ y.execTime }}</td>
+                                <td>{{ y.status }}</td>
+                                <td><a href="#">click here</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
-            <hr/>
         </div>
-        <div id="ss">{{ draw() }}...</div>
+        <hr/>
     </div>
-</form>
+</div>
+<hr/>
 </body>
 </html>

@@ -3,5 +3,7 @@
   "cob": "GB",
   "gender": "M",
   "eventType": "MOVEMENT_EVENT",
-  "eventSubtype": "BOOKING"
+  "eventSubtype": "BOOKING",
+  "pob": "MAA",
+  "visa": "T1"
 }

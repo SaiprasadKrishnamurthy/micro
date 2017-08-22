@@ -1,8 +1,14 @@
 package com.sai.rulebase.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sai.rulebase.entity.Rule;
+import com.sai.rulebase.entity.RuleAudit;
+import com.sai.rulebase.entity.RuleFlowEdgeSnapshot;
+import com.sai.rulebase.entity.RuleSnapshot;
 import com.sai.rulebase.model.RuleFunction;
 import com.sai.rulebase.model.RuleLibraryInfo;
+import com.sai.rulebase.repository.RuleAuditRepository;
 import com.sai.rulebase.repository.RuleFunctionsRepository;
 import com.sai.rulebase.repository.TransactionalDataRepository;
 import com.sai.rulebase.vertx.Bootstrap;
@@ -16,6 +22,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,8 +43,13 @@ public class RuleExecApi {
     @Autowired
     private RuleFunctionsRepository ruleFunctionsRepository;
 
+    @Autowired
+    private RuleAuditRepository ruleAuditRepository;
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @PostMapping("/ruleresult/{flowName}")
-    public DeferredResult<RuleExecutionContext<?>> ruleresult(@PathVariable("flowName") final String flowName, @RequestBody Map payload) {
+    public DeferredResult<RuleExecutionContext<?>> ruleresult(@PathVariable("flowName") final String flowName, final @RequestBody Map payload) throws Exception {
         DeferredResult<RuleExecutionContext<?>> response = new DeferredResult<>();
         RuleExecutionContext<?> ruleExecutionContext = RuleExecutionContext.newContext(payload);
         transactionalDataRepository.setup(ruleExecutionContext, flowName);
@@ -49,6 +61,40 @@ public class RuleExecApi {
         // React to the response.
         bootstrap.getVertx().eventBus().consumer("DONE|" + ruleExecutionContext.getId(), msg -> {
             response.setResult(transactionalDataRepository.contextFor(ruleExecutionContext.getId()));
+            // Audit the flow.
+            RuleAudit ruleAudit = new RuleAudit();
+            ruleAudit.setFlowName(flowName);
+            ruleAudit.setRuleErrors(ruleExecutionContext.getErroredRules());
+            ruleAudit.setRuleExecTime(ruleExecutionContext.getRuleExecutionTimingsInMillis());
+            ruleAudit.setTimestamp(System.currentTimeMillis());
+            Set<RuleFlowEdgeSnapshot> snapshots = ruleExecutionContext.getRuleFlow().getEdges().stream()
+                    .map(rfe -> {
+                        RuleFlowEdgeSnapshot edgeSnapshot = new RuleFlowEdgeSnapshot();
+                        edgeSnapshot.setRuleNameFrom(rfe.getRuleNameFrom());
+                        edgeSnapshot.setRuleNameTo(rfe.getRuleNameTo());
+                        return edgeSnapshot;
+                    }).collect(Collectors.toSet());
+            ruleAudit.setEdges(snapshots);
+            ruleAudit.setTransactionId(ruleExecutionContext.getId());
+
+            ruleAudit.setRules(ruleExecutionContext.getRulesExecutedChain().stream()
+                    .map(rule -> {
+                        RuleSnapshot ruleSnapshot = new RuleSnapshot();
+                        ruleSnapshot.setName(rule.getName());
+                        ruleSnapshot.setDescription(rule.getDescription());
+                        ruleSnapshot.setFamily(rule.getFamily());
+                        ruleSnapshot.setEvaluationCondition(rule.getEvaluationCondition());
+                        ruleSnapshot.setExecutionAction(rule.getExecutionAction());
+                        ruleSnapshot.setShortCircuit(rule.getShortCircuit());
+                        return ruleSnapshot;
+                    }).collect(Collectors.toSet()));
+
+            ruleAudit.setTotalTimeTakenInMillis(ruleExecutionContext.getRuleExecutionTimingsInMillis().values().stream().reduce(0L, (a, b) -> a + b));
+            try {
+                bootstrap.getVertx().eventBus().send("AUDIT", OBJECT_MAPPER.writeValueAsString(ruleAudit));
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
             transactionalDataRepository.clear(ruleExecutionContext.getId());
         });
         return response;
@@ -66,5 +112,10 @@ public class RuleExecApi {
                     return new RuleLibraryInfo(clazz, "", ruleFunctions);
                 })
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/ruleaudits")
+    public Iterable<?> ruleAudits() {
+        return ruleAuditRepository.findAllByOrderByTimestampDesc();
     }
 }

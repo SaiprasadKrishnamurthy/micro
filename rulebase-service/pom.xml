@@ -187,11 +187,6 @@
             <artifactId>hsqldb</artifactId>
             <version>${hsqldb.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.reactivex</groupId>
-            <artifactId>rxjava</artifactId>
-            <version>1.2.7</version>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
