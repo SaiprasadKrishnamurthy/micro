@@ -8,9 +8,7 @@ import com.sai.rulebase.entity.RuleFlowEdgeSnapshot;
 import com.sai.rulebase.entity.RuleSnapshot;
 import com.sai.rulebase.model.RuleFunction;
 import com.sai.rulebase.model.RuleLibraryInfo;
-import com.sai.rulebase.repository.RuleAuditRepository;
-import com.sai.rulebase.repository.RuleFunctionsRepository;
-import com.sai.rulebase.repository.TransactionalDataRepository;
+import com.sai.rulebase.repository.*;
 import com.sai.rulebase.vertx.Bootstrap;
 import com.sai.rulebase.vertx.RuleExecutorVerticle;
 import com.sai.rules.rulebase.RuleExecutionContext;
@@ -46,6 +44,12 @@ public class RuleExecApi {
 
     @Autowired
     private RuleAuditRepository ruleAuditRepository;
+
+    @Autowired
+    private RuleRepository ruleRepository;
+
+    @Autowired
+    private RuleFlowRepository ruleFlowRepository;
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -117,5 +121,15 @@ public class RuleExecApi {
     @GetMapping("/ruleaudits")
     public Iterable<?> ruleAudits() {
         return ruleAuditRepository.findAllByOrderByTimestampDesc();
+    }
+
+    @GetMapping("/ruleflows")
+    public Iterable<?> ruleflows() {
+        return ruleFlowRepository.findAll();
+    }
+
+    @GetMapping("/rules")
+    public Iterable<?> rules() {
+        return ruleRepository.findAll();
     }
 }
