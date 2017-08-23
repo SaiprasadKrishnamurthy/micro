@@ -35,5 +35,6 @@ public class Bootstrap {
         vertx.registerVerticleFactory(verticleFactory);
         vertx.deployVerticle(verticleFactory.prefix() + ":" + RuleExecutorVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()));
         vertx.deployVerticle(verticleFactory.prefix() + ":" + PersistenceVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()));
+        vertx.deployVerticle(verticleFactory.prefix() + ":" + ResponseBuilderVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()));
     }
 }

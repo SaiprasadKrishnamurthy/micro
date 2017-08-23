@@ -78,12 +78,15 @@ public class RulebaseApp {
 
 
             RuleFlow ruleFlow = new RuleFlow();
-            ruleFlow.setName("RiskRuleFlow");
+            ruleFlow.setName("RuleFlowDef1");
             ruleFlow.setDescription("Rule flow definition for risk rules");
             ruleFlow.setEdges(edges);
+            ruleFlow.setPostExecutionCallback("#buildResponse(#ctx)");
+
             ruleFlowRepository.save(ruleFlow);
-            System.out.println(ruleExecApi.ruleresult("RiskRuleFlow", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload.json"), Map.class)));
-            System.out.println(ruleExecApi.ruleresult("RiskRuleFlow", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload1.json"), Map.class)));
+
+            System.out.println(ruleExecApi.ruleresult("RuleFlowDef1", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload.json"), Map.class), true));
+            //System.out.println(ruleExecApi.ruleresult("RuleFlowDef1", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload1.json"), Map.class), false));
         };
     }
 

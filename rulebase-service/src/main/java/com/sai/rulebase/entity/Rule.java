@@ -2,6 +2,7 @@ package com.sai.rulebase.entity;
 
 import com.sai.rules.rulebase.RuleFamilyType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 
@@ -10,6 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Data
+@EqualsAndHashCode(of = {"name"})
 public class Rule {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

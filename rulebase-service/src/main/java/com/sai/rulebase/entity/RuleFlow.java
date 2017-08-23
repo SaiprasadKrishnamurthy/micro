@@ -26,4 +26,7 @@ public class RuleFlow {
     @JoinColumn(name="EDGES")
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<RuleFlowEdge> edges;
+
+    @Column
+    private String postExecutionCallback;
 }

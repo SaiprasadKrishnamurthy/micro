@@ -3,8 +3,6 @@ package com.sai.rulebase.vertx;
 import com.sai.rulebase.entity.Rule;
 import com.sai.rulebase.model.DefaultRuleExecutor;
 import com.sai.rulebase.model.RuleExecutor;
-import com.sai.rulebase.repository.RuleFlowRepository;
-import com.sai.rulebase.repository.RuleRepository;
 import com.sai.rulebase.repository.TransactionalDataRepository;
 import com.sai.rules.rulebase.RuleExecutionContext;
 import io.vertx.core.AbstractVerticle;
@@ -25,27 +23,27 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 @Scope(SCOPE_PROTOTYPE)
 public class RuleExecutorVerticle extends AbstractVerticle {
 
-    private final RuleRepository ruleRepository;
     private final TransactionalDataRepository transactionalDataRepository;
-    private final RuleFlowRepository ruleFlowRepository;
 
     @Autowired
-    public RuleExecutorVerticle(final RuleRepository ruleRepository, final TransactionalDataRepository transactionalDataRepository, final RuleFlowRepository ruleFlowRepository) {
-        this.ruleRepository = ruleRepository;
+    public RuleExecutorVerticle(final TransactionalDataRepository transactionalDataRepository) {
         this.transactionalDataRepository = transactionalDataRepository;
-        this.ruleFlowRepository = ruleFlowRepository;
     }
 
     @Override
     public void start(final Future<Void> startFuture) throws Exception {
         super.start(startFuture);
-        getVertx().eventBus().consumer("EXEC", this::exec);
+        getVertx().eventBus().consumer(RuleExecutorVerticle.class.getName(), this::exec);
     }
 
     private void exec(final Message<Object> msg) {
         String payload = msg.body().toString();
         String transactionId = payload.split("\\|")[0];
         String ruleName = payload.split("\\|")[1];
+
+        List<Rule> nextRules = transactionalDataRepository.nextRulesFor(transactionId, ruleName);
+
+        boolean hasAllPredecessorsFinishedExecution = transactionalDataRepository.hasAllPredecessorsFinishedExecution(transactionId, ruleName);
 
         RuleExecutionContext<?> ruleExecutionContext = transactionalDataRepository.contextFor(transactionId);
         Rule rule = transactionalDataRepository.ruleFor(ruleName);
@@ -54,12 +52,13 @@ public class RuleExecutorVerticle extends AbstractVerticle {
             ruleExecutor.execute(ruleExecutionContext);
         }
         // Fire the next rules in the pipeline.
-        List<Rule> nextRules = transactionalDataRepository.nextRulesFor(transactionId, ruleName);
         if (nextRules.isEmpty()) {
-            getVertx().eventBus().send("DONE|" + ruleExecutionContext.getId(), ""); // Don't need to pass anything around.
-        } else {
+            getVertx().eventBus().send(ResponseBuilderVerticle.class.getName(), transactionId + "|" + ""); // Don't need to pass anything around.
+        } else if (hasAllPredecessorsFinishedExecution) {
             nextRules
-                    .forEach(next -> vertx.eventBus().send("EXEC", transactionId + "|" + next.getName()));
+                    .forEach(next -> vertx.eventBus().send(RuleExecutorVerticle.class.getName(), transactionId + "|" + next.getName()));
+        } else {
+            System.out.println("\t\t --- " + ruleName + "I'm still waiting, have more job to do ---- ");
         }
     }
 }

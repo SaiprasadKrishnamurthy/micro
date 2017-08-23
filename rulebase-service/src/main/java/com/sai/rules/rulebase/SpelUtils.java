@@ -33,4 +33,13 @@ public class SpelUtils {
         ExpressionParser parser = new SpelExpressionParser();
         parser.parseExpression(spelExpression).getValue(simpleContext);
     }
+
+    public static Object invoke(final RuleExecutionContext ruleExecutionContext, final String spelExpression) {
+        // TODO do not construct every time.
+        StandardEvaluationContext simpleContext = new StandardEvaluationContext(ruleExecutionContext);
+        simpleContext.setVariable("ctx", ruleExecutionContext);
+        RulebaseConfig.LIB_METHODS.forEach(m -> simpleContext.registerFunction(m.getName(), m));
+        ExpressionParser parser = new SpelExpressionParser();
+        return parser.parseExpression(spelExpression).getValue(simpleContext);
+    }
 }

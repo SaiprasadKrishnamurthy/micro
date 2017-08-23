@@ -12,6 +12,7 @@ import com.sai.rulebase.repository.RuleAuditRepository;
 import com.sai.rulebase.repository.RuleFunctionsRepository;
 import com.sai.rulebase.repository.TransactionalDataRepository;
 import com.sai.rulebase.vertx.Bootstrap;
+import com.sai.rulebase.vertx.RuleExecutorVerticle;
 import com.sai.rules.rulebase.RuleExecutionContext;
 import com.sai.rules.rulebase.RuleLibrary;
 import io.swagger.annotations.Api;
@@ -49,18 +50,18 @@ public class RuleExecApi {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @PostMapping("/ruleresult/{flowName}")
-    public DeferredResult<RuleExecutionContext<?>> ruleresult(@PathVariable("flowName") final String flowName, final @RequestBody Map payload) throws Exception {
-        DeferredResult<RuleExecutionContext<?>> response = new DeferredResult<>();
+    public DeferredResult<?> ruleresult(@PathVariable("flowName") final String flowName, final @RequestBody Map payload, @RequestParam(required = false, defaultValue = "false") final boolean debug) throws Exception {
+        DeferredResult<Object> response = new DeferredResult<>();
         RuleExecutionContext<?> ruleExecutionContext = RuleExecutionContext.newContext(payload);
         transactionalDataRepository.setup(ruleExecutionContext, flowName);
 
         // First rule in the flow.
         Rule first = transactionalDataRepository.firstRule(ruleExecutionContext);
-        bootstrap.getVertx().eventBus().send("EXEC", ruleExecutionContext.getId() + "|" + first.getName());
+        bootstrap.getVertx().eventBus().send(RuleExecutorVerticle.class.getName(), ruleExecutionContext.getId() + "|" + first.getName());
 
         // React to the response.
         bootstrap.getVertx().eventBus().consumer("DONE|" + ruleExecutionContext.getId(), msg -> {
-            response.setResult(transactionalDataRepository.contextFor(ruleExecutionContext.getId()));
+            response.setResult(transactionalDataRepository.responseFor(ruleExecutionContext));
             // Audit the flow.
             RuleAudit ruleAudit = new RuleAudit();
             ruleAudit.setFlowName(flowName);
@@ -95,7 +96,6 @@ public class RuleExecApi {
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            transactionalDataRepository.clear(ruleExecutionContext.getId());
         });
         return response;
     }
