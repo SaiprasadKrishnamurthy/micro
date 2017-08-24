@@ -16,20 +16,20 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
  */
 @Component
 @Scope(SCOPE_PROTOTYPE)
-public class PersistenceVerticle extends AbstractVerticle {
+public class RuleAuditPersistenceVerticle extends AbstractVerticle {
 
     private final RuleAuditRepository ruleAuditRepository;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public PersistenceVerticle(final RuleAuditRepository ruleAuditRepository) {
+    public RuleAuditPersistenceVerticle(final RuleAuditRepository ruleAuditRepository) {
         this.ruleAuditRepository = ruleAuditRepository;
     }
 
     @Override
     public void start(final Future<Void> startFuture) throws Exception {
         super.start(startFuture);
-        getVertx().eventBus().consumer("AUDIT", this::exec);
+        getVertx().eventBus().consumer(RuleAuditPersistenceVerticle.class.getName(), this::exec);
     }
 
     private void exec(final Message<Object> msg) {

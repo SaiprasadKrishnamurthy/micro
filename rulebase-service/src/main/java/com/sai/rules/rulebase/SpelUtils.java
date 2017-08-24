@@ -18,7 +18,6 @@ public class SpelUtils {
         StandardEvaluationContext simpleContext = new StandardEvaluationContext(ruleExecutionContext);
         simpleContext.setVariable("ctx", ruleExecutionContext);
         RulebaseConfig.LIB_METHODS.forEach(m -> {
-            System.out.println(m.getName() + " ----- ***** ");
             simpleContext.registerFunction(m.getName(), m);
         });
         ExpressionParser parser = new SpelExpressionParser();

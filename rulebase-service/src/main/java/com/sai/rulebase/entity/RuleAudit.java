@@ -36,10 +36,9 @@ public class RuleAudit {
     @Column(name = "VALUE")
     private Map<String, Long> ruleExecTime = new HashMap<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "ERRORS")
-    @MapKeyColumn(name = "KEY")
-    @Column(name = "VALUE")
+    @ElementCollection
+    @Column(nullable = false)
+    @Lob
     private Map<String, String> ruleErrors = new HashMap<>();
 
     @Column
@@ -67,6 +66,7 @@ public class RuleAudit {
         private String ruleName;
         private Long execTime;
         private String status;
+        private String errorMsg;
     }
 
     @Transient
@@ -77,9 +77,17 @@ public class RuleAudit {
         StringBuilder out = new StringBuilder();
         out.append("graph LR").append("\n");
         edges.forEach(ruleFlowEdgeSnapshot -> {
-            out.append(ruleFlowEdgeSnapshot.getRuleNameFrom()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameFrom()).append("]");
+            if (!ruleErrors.containsKey(ruleFlowEdgeSnapshot.getRuleNameFrom())) {
+                out.append(ruleFlowEdgeSnapshot.getRuleNameFrom()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameFrom()).append("]");
+            } else {
+                out.append(ruleFlowEdgeSnapshot.getRuleNameFrom()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameFrom()).append(" <br /><br />").append("ERROR").append("]");
+            }
             out.append("  ==>  ");
-            out.append(ruleFlowEdgeSnapshot.getRuleNameTo()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameTo() == null ? ruleFlowEdgeSnapshot.getRuleNameFrom() : ruleFlowEdgeSnapshot.getRuleNameTo()).append("]");
+            if (!ruleErrors.containsKey(ruleFlowEdgeSnapshot.getRuleNameTo())) {
+                out.append(ruleFlowEdgeSnapshot.getRuleNameTo()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameTo() == null ? ruleFlowEdgeSnapshot.getRuleNameFrom() : ruleFlowEdgeSnapshot.getRuleNameTo()).append("]");
+            } else {
+                out.append(ruleFlowEdgeSnapshot.getRuleNameTo()).append("[").append(ruleFlowEdgeSnapshot.getRuleNameTo() == null ? ruleFlowEdgeSnapshot.getRuleNameFrom() : ruleFlowEdgeSnapshot.getRuleNameTo()).append(" <br /><br />").append("ERROR").append("]");
+            }
             out.append("\n");
             allRules.add(ruleFlowEdgeSnapshot.getRuleNameFrom());
             allRules.add(ruleFlowEdgeSnapshot.getRuleNameTo());
@@ -92,14 +100,9 @@ public class RuleAudit {
 
         out.append("\n");
         out.append("classDef green fill:#9f6,stroke:#333,stroke-width:2px;").append("\n");
-        out.append("classDef red fill:red,stroke:#333,stroke-width:4px;").append("\n");
-        out.append("classDef orange fill:orange,stroke:#333,stroke-width:4px;").append("\n");
         String successRules = allRules.stream().filter(name -> !notExecuted.contains(name)).collect(joining(","));
         String errorRules = ruleErrors.keySet().stream().collect(joining(","));
         out.append("class ").append(successRules).append(" green ").append("\n");
-        if (errorRules.trim().length() > 0) {
-            out.append("class ").append(errorRules).append(" red ").append("\n");
-        }
         return out.toString();
     }
 
@@ -117,6 +120,7 @@ public class RuleAudit {
             ruleInfo.setRuleName(entry.getKey());
             ruleInfo.setExecTime(entry.getValue());
             ruleInfo.setStatus(ruleErrors.containsKey(entry.getKey()) ? "ERROR" : "SUCCESS");
+            ruleInfo.setErrorMsg(ruleErrors.getOrDefault(entry.getKey(), ""));
             ruleInfos.add(ruleInfo);
         });
         return ruleInfos;

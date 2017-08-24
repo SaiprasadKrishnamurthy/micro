@@ -33,8 +33,8 @@ public class Bootstrap {
         vertx = Vertx.vertx();
         VerticleFactory verticleFactory = applicationContext.getBean(SpringVerticleFactory.class);
         vertx.registerVerticleFactory(verticleFactory);
-        vertx.deployVerticle(verticleFactory.prefix() + ":" + RuleExecutorVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()));
-        vertx.deployVerticle(verticleFactory.prefix() + ":" + PersistenceVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()));
-        vertx.deployVerticle(verticleFactory.prefix() + ":" + ResponseBuilderVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()));
+        vertx.deployVerticle(verticleFactory.prefix() + ":" + RuleExecutorVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()).setWorker(true));
+        vertx.deployVerticle(verticleFactory.prefix() + ":" + RuleAuditPersistenceVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()));
+        vertx.deployVerticle(verticleFactory.prefix() + ":" + ResponseBuilderVerticle.class.getName(), new DeploymentOptions().setInstances(rulebaseConfig.getRuleExecutorInstances()).setWorker(true));
     }
 }

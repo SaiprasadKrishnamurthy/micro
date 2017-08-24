@@ -10,6 +10,7 @@ import com.sai.rulebase.model.RuleFunction;
 import com.sai.rulebase.model.RuleLibraryInfo;
 import com.sai.rulebase.repository.*;
 import com.sai.rulebase.vertx.Bootstrap;
+import com.sai.rulebase.vertx.RuleAuditPersistenceVerticle;
 import com.sai.rulebase.vertx.RuleExecutorVerticle;
 import com.sai.rules.rulebase.RuleExecutionContext;
 import com.sai.rules.rulebase.RuleLibrary;
@@ -96,7 +97,7 @@ public class RuleExecApi {
 
             ruleAudit.setTotalTimeTakenInMillis(ruleExecutionContext.getRuleExecutionTimingsInMillis().values().stream().reduce(0L, (a, b) -> a + b));
             try {
-                bootstrap.getVertx().eventBus().send("AUDIT", OBJECT_MAPPER.writeValueAsString(ruleAudit));
+                bootstrap.getVertx().eventBus().send(RuleAuditPersistenceVerticle.class.getName(), OBJECT_MAPPER.writeValueAsString(ruleAudit));
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }

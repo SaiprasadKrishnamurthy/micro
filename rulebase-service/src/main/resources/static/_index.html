@@ -43,16 +43,21 @@
                     <div class="col-md-12">
                             <div class="mermaid">
 
+
                                 graph LR
-                                CountryOfBirthCheckRule[CountryOfBirthCheckRule]  ==&gt;  NationalityCheckRule[NationalityCheckRule]
-                                EventTypeAndSubTypeCheckRule[EventTypeAndSubTypeCheckRule]  ==&gt;  GenderCheckRule[GenderCheckRule]
                                 NationalityCheckRule[NationalityCheckRule]  ==&gt;  EventTypeAndSubTypeCheckRule[EventTypeAndSubTypeCheckRule]
+                                EventTypeAndSubTypeCheckRule[EventTypeAndSubTypeCheckRule]  ==&gt;  GenderCheckRule[GenderCheckRule]
+                                CountryOfBirthCheckRule[CountryOfBirthCheckRule]  ==&gt;  NationalityCheckRule[NationalityCheckRule]
+                                PlaceOfBirthRule[PlaceOfBirthRule]  ==&gt;  TypeOfVisaRule[TypeOfVisaRule]
+                                SSNCheckRule[SSNCheckRule]  ==&gt;  PlaceOfBirthRule[PlaceOfBirthRule]
+                                CountryOfBirthCheckRule[CountryOfBirthCheckRule]  ==&gt;  SSNCheckRule[SSNCheckRule]
+                                GenderCheckRule[GenderCheckRule]  ==&gt;  PlaceOfBirthRule[PlaceOfBirthRule]
 
                                 classDef green fill:#9f6,stroke:#333,stroke-width:2px;
-                                classDef red fill:red,stroke:#333,stroke-width:4px;
+                                classDef red fill:#FF6347,stroke:#333,stroke-width:4px;
                                 classDef orange fill:orange,stroke:#333,stroke-width:4px;
-                                class CountryOfBirthCheckRule,NationalityCheckRule,EventTypeAndSubTypeCheckRule green
-                                class GenderCheckRule red
+                                class NationalityCheckRule,GenderCheckRule,PlaceOfBirthRule,TypeOfVisaRule,SSNCheckRule green
+                                class EventTypeAndSubTypeCheckRule,CountryOfBirthCheckRule red
 
 
                             </div>

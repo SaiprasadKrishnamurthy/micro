@@ -4,6 +4,7 @@ import com.sai.rulebase.entity.Rule;
 import com.sai.rulebase.entity.YesNoType;
 import com.sai.rules.rulebase.RuleExecutionContext;
 import com.sai.rules.rulebase.SpelUtils;
+import io.vertx.core.Vertx;
 import org.springframework.util.StopWatch;
 
 /**
@@ -13,9 +14,11 @@ public class DefaultRuleExecutor implements RuleExecutor {
 
     private final Rule rule;
     private final StopWatch stopWatch = new StopWatch();
+    private final Vertx vertx;
 
-    public DefaultRuleExecutor(Rule rule) {
+    public DefaultRuleExecutor(final Rule rule, final Vertx vertx) {
         this.rule = rule;
+        this.vertx = vertx;
     }
 
     @Override
@@ -27,7 +30,13 @@ public class DefaultRuleExecutor implements RuleExecutor {
     @Override
     public void execute(final RuleExecutionContext<?> ruleExecutionContext) {
         ruleExecutionContext.getRulesExecutedChain().add(rule);
-        SpelUtils.execute(ruleExecutionContext, rule.getExecutionAction());
+
+        // Async handling the result.
+        try {
+            SpelUtils.execute(ruleExecutionContext, rule.getExecutionAction());
+        } catch (Exception ex) {
+            ruleExecutionContext.getErroredRules().put(rule.getName(), ex.getCause().toString());
+        }
         ruleExecutionContext.setShortCircuited(rule.getShortCircuit().equals(YesNoType.Y));
         stopWatch.stop();
         ruleExecutionContext.getRuleExecutionTimingsInMillis().put(rule.getName(), stopWatch.getTotalTimeMillis());

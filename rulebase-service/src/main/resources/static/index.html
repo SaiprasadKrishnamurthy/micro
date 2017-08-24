@@ -12,6 +12,11 @@
     <script src="/angular.min.js"></script>
     <script src="/angular.sanitize.js"></script>
     <script src="/mermaid.js"></script>
+    <style>
+        div.well {
+            overflow-y: scroll;
+        }
+    </style>
     <script>
         var app = angular.module("myApp", []);
         app.controller("myCtrl", function($scope, $http) {
@@ -30,12 +35,16 @@
 
 
 
+
+
     </script>
 
     <style>
         .label{
             color: #000
         }
+
+
 
 
 
@@ -60,8 +69,10 @@
                     RuleFlow: {{ x.flowName }}
                 </div>
                 <div class="col-md-12">
-                    <div class="well" id="i{{ $index }}">
-                        {{ x.pipeline.trim() }}
+                    <div class="well row">
+                        <div class="col-md-12" id="i{{ $index }}">
+                            {{ x.pipeline.trim() }}
+                        </div>
                     </div>
                     <div>{{ draw('i'+$index) }}</div>
 
@@ -78,6 +89,7 @@
                                 <th>Rule Name</th>
                                 <th>Execution Time in millis</th>
                                 <th>Status</th>
+                                <th>Error Msg</th>
                                 <th>Rule Definition</th>
                             </tr>
                             </thead>
@@ -87,12 +99,12 @@
                                 <td>{{ y.ruleName }}</td>
                                 <td>{{ y.execTime }}</td>
                                 <td>{{ y.status }}</td>
+                                <td>{{ y.errorMsg }}</td>
                                 <td><a href="#">click here</a></td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>

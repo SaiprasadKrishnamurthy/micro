@@ -47,4 +47,7 @@ public class Rule {
     @Column(name = "ABORTONERROR")
     @Enumerated(value = EnumType.STRING)
     private YesNoType abortOnError = YesNoType.Y;
+
+    @Column(name = "TIMEOUTSECS")
+    private int timeoutSecs = 5;
 }
