@@ -35,6 +35,9 @@ public class TransactionalDataRepository {
     private Cache<String, AtomicInteger> predecessorsCountTrackCache = CacheBuilder.newBuilder()
             .expireAfterAccess(2, TimeUnit.MINUTES)
             .build();
+    private Cache<String, Long> startTimesMillis = CacheBuilder.newBuilder()
+            .expireAfterAccess(2, TimeUnit.MINUTES)
+            .build();
 
     private final RuleRepository ruleRepository;
     private final RuleFlowRepository ruleFlowRepository;
@@ -82,6 +85,16 @@ public class TransactionalDataRepository {
     public Object responseFor(final RuleExecutionContext<?> ruleExecutionContext) {
         return responsesCache.getIfPresent(ruleExecutionContext.getId());
     }
+
+    public void startExec(final RuleExecutionContext<?> ruleExecutionContext, final Rule rule) {
+        startTimesMillis.put(ruleExecutionContext.getId()+"|"+rule.getName(), System.currentTimeMillis());
+    }
+
+    public void endExec(final RuleExecutionContext<?> ruleExecutionContext, final Rule rule) {
+        Long totalExecTime = System.currentTimeMillis() - startTimesMillis.getIfPresent(ruleExecutionContext.getId()+"|"+rule.getName());
+        ruleExecutionContext.getRuleExecutionTimingsInMillis().put(rule.getName(), totalExecTime);
+    }
+
 
     public List<Rule> nextRulesFor(final String transactionId, final String ruleName) {
         AtomicInteger counter = predecessorsCountTrackCache.getIfPresent(transactionId + "|" + ruleName);

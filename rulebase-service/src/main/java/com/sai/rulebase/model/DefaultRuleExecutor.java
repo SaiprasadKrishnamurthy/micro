@@ -2,43 +2,53 @@ package com.sai.rulebase.model;
 
 import com.sai.rulebase.entity.Rule;
 import com.sai.rulebase.entity.YesNoType;
+import com.sai.rulebase.repository.TransactionalDataRepository;
+import com.sai.rulebase.scratchpad.TimeLimitedTaskExecutor;
 import com.sai.rules.rulebase.RuleExecutionContext;
 import com.sai.rules.rulebase.SpelUtils;
-import io.vertx.core.Vertx;
-import org.springframework.util.StopWatch;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by saipkri on 18/08/17.
  */
+@Component
 public class DefaultRuleExecutor implements RuleExecutor {
 
-    private final Rule rule;
-    private final StopWatch stopWatch = new StopWatch();
-    private final Vertx vertx;
+    private final TimeLimitedTaskExecutor timeLimitedTaskExecutor;
+    private final TransactionalDataRepository transactionalDataRepository;
 
-    public DefaultRuleExecutor(final Rule rule, final Vertx vertx) {
-        this.rule = rule;
-        this.vertx = vertx;
+    @Autowired
+    public DefaultRuleExecutor(final TimeLimitedTaskExecutor timeLimitedTaskExecutor, final TransactionalDataRepository transactionalDataRepository) {
+        this.timeLimitedTaskExecutor = timeLimitedTaskExecutor;
+        this.transactionalDataRepository = transactionalDataRepository;
     }
 
     @Override
-    public boolean evaluate(final RuleExecutionContext<?> ruleExecutionContext) {
-        stopWatch.start();
+    public boolean evaluate(final Rule rule, final RuleExecutionContext<?> ruleExecutionContext) {
+        transactionalDataRepository.startExec(ruleExecutionContext, rule);
         return !ruleExecutionContext.isShortCircuited() && SpelUtils.eval(ruleExecutionContext, rule.getEvaluationCondition());
     }
 
     @Override
-    public void execute(final RuleExecutionContext<?> ruleExecutionContext) {
-        ruleExecutionContext.getRulesExecutedChain().add(rule);
+    public void execute(final Rule rule, final RuleExecutionContext<?> ruleExecutionContext) throws Exception {
+        Callable<Void> callable = () ->
+        {
+            ruleExecutionContext.getRulesExecutedChain().add(rule);
 
-        // Async handling the result.
-        try {
-            SpelUtils.execute(ruleExecutionContext, rule.getExecutionAction());
-        } catch (Exception ex) {
-            ruleExecutionContext.getErroredRules().put(rule.getName(), ex.getCause().toString());
-        }
-        ruleExecutionContext.setShortCircuited(rule.getShortCircuit().equals(YesNoType.Y));
-        stopWatch.stop();
-        ruleExecutionContext.getRuleExecutionTimingsInMillis().put(rule.getName(), stopWatch.getTotalTimeMillis());
+            // Async handling the result.
+            try {
+                SpelUtils.execute(ruleExecutionContext, rule.getExecutionAction());
+            } catch (Exception ex) {
+                ruleExecutionContext.getErroredRules().put(rule.getName(), ex.getCause().toString());
+            }
+            ruleExecutionContext.setShortCircuited(rule.getShortCircuit().equals(YesNoType.Y));
+            transactionalDataRepository.endExec(ruleExecutionContext, rule);
+            return null;
+        };
+        timeLimitedTaskExecutor.run(callable, rule.getTimeoutSecs(), TimeUnit.SECONDS);
     }
 }

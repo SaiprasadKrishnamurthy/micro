@@ -64,7 +64,7 @@ public class RulebaseApp {
                 ruleFlowEdge.setRuleNameTo(rules[i + 1].getName());
                 edges.add(ruleFlowEdge);
             }
-            /*RuleFlowEdge ruleFlowEdge = new RuleFlowEdge();
+            RuleFlowEdge ruleFlowEdge = new RuleFlowEdge();
             ruleFlowEdge.setRuleNameFrom(rules[0].getName());
             ruleFlowEdge.setRuleNameTo(rules[rules.length - 1].getName());
 
@@ -74,14 +74,14 @@ public class RulebaseApp {
             ruleFlowEdge1.setRuleNameFrom(ruleFlowEdge.getRuleNameTo());
             ruleFlowEdge1.setRuleNameTo(rules[rules.length - 3].getName());
 
-            edges.add(ruleFlowEdge1);*/
+            edges.add(ruleFlowEdge1);
 
 
             RuleFlow ruleFlow = new RuleFlow();
             ruleFlow.setName("RuleFlowDef1");
             ruleFlow.setDescription("Rule flow definition for risk rules");
             ruleFlow.setEdges(edges);
-            //ruleFlow.setPostExecutionCallback("#buildResponse(#ctx)");
+            ruleFlow.setPostExecutionCallback("#buildResponse(#ctx)");
 
             ruleFlowRepository.save(ruleFlow);
 

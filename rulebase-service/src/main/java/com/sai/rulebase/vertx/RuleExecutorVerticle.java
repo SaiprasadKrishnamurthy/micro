@@ -1,14 +1,15 @@
 package com.sai.rulebase.vertx;
 
 import com.sai.rulebase.entity.Rule;
-import com.sai.rulebase.model.DefaultRuleExecutor;
 import com.sai.rulebase.model.RuleExecutor;
 import com.sai.rulebase.repository.TransactionalDataRepository;
 import com.sai.rules.rulebase.RuleExecutionContext;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.eventbus.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -24,11 +25,15 @@ import static org.springframework.beans.factory.config.ConfigurableBeanFactory.S
 @Scope(SCOPE_PROTOTYPE)
 public class RuleExecutorVerticle extends AbstractVerticle {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RuleExecutorVerticle.class);
+
     private final TransactionalDataRepository transactionalDataRepository;
+    private final RuleExecutor ruleExecutor;
 
     @Autowired
-    public RuleExecutorVerticle(final TransactionalDataRepository transactionalDataRepository) {
+    public RuleExecutorVerticle(final TransactionalDataRepository transactionalDataRepository, final RuleExecutor ruleExecutor) {
         this.transactionalDataRepository = transactionalDataRepository;
+        this.ruleExecutor = ruleExecutor;
     }
 
     @Override
@@ -42,33 +47,35 @@ public class RuleExecutorVerticle extends AbstractVerticle {
         String transactionId = payload.split("\\|")[0];
         String ruleName = payload.split("\\|")[1];
 
-        System.out.println("\t\t " + ruleName);
+        LOG.info(" \t Rule: {}", ruleName);
+
         List<Rule> nextRules = transactionalDataRepository.nextRulesFor(transactionId, ruleName);
 
         boolean hasAllPredecessorsFinishedExecution = transactionalDataRepository.hasAllPredecessorsFinishedExecution(transactionId, ruleName);
 
         RuleExecutionContext<?> ruleExecutionContext = transactionalDataRepository.contextFor(transactionId);
         Rule rule = transactionalDataRepository.ruleFor(ruleName);
-        RuleExecutor ruleExecutor = new DefaultRuleExecutor(rule, vertx);
 
-        if (ruleExecutor.evaluate(ruleExecutionContext)) {
-            ruleExecutor.execute(ruleExecutionContext);
+        if (ruleExecutor.evaluate(rule, ruleExecutionContext)) {
+            try {
+                ruleExecutor.execute(rule, ruleExecutionContext);
+            } catch (Exception exception) {
+                LOG.error("Error {} | {} | {}", ruleName, transactionId, exception);
+                ruleExecutionContext.getErroredRules().put(ruleName, exception.toString());
+            }
         }
         // Fire the next rules in the pipeline.
         if (nextRules.isEmpty()) {
             getVertx().eventBus().send(ResponseBuilderVerticle.class.getName(), transactionId + "|" + ""); // Don't need to pass anything around.
         } else if (hasAllPredecessorsFinishedExecution) {
             nextRules
-                    .forEach(next -> vertx.eventBus().send(RuleExecutorVerticle.class.getName(), transactionId + "|" + next.getName(),
-                            new DeliveryOptions().setSendTimeout(next.getTimeoutSecs() * 1000),
-                            result -> {
-                                if (result.failed()) {
-                                    System.out.println(" Timed out : "+next);
-                                    ruleExecutionContext.getErroredRules().put(next.getName(), result.cause().toString());
-                                }
-                            }));
+                    .forEach(next -> callNextRule(transactionId, next));
         } else {
-            System.out.println("\t\t --- " + ruleName + "I'm still waiting, have more job to do ---- ");
+            LOG.info("\t\t ---  {} I'm still waiting, have more job to do ---- ", ruleName);
         }
+    }
+
+    private EventBus callNextRule(final String transactionId, final Rule next) {
+        return vertx.eventBus().send(RuleExecutorVerticle.class.getName(), transactionId + "|" + next.getName());
     }
 }
