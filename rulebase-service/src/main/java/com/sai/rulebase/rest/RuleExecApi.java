@@ -55,7 +55,7 @@ public class RuleExecApi {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @PostMapping("/ruleresult/{flowName}")
-    public DeferredResult<?> ruleresult(@PathVariable("flowName") final String flowName, final @RequestBody Map payload, @RequestParam(required = false, defaultValue = "false") final boolean debug) throws Exception {
+    public DeferredResult<?> ruleresult(@PathVariable("flowName") final String flowName, final @RequestBody Map payload, @RequestParam(required = false, defaultValue = "true", name = "audit") final boolean audit) throws Exception {
         DeferredResult<Object> response = new DeferredResult<>();
         RuleExecutionContext<?> ruleExecutionContext = RuleExecutionContext.newContext(payload);
         transactionalDataRepository.setup(ruleExecutionContext, flowName);
@@ -68,41 +68,47 @@ public class RuleExecApi {
         bootstrap.getVertx().eventBus().consumer("DONE|" + ruleExecutionContext.getId(), msg -> {
             response.setResult(transactionalDataRepository.responseFor(ruleExecutionContext));
             // Audit the flow.
-            RuleAudit ruleAudit = new RuleAudit();
-            ruleAudit.setFlowName(flowName);
-            ruleAudit.setRuleErrors(ruleExecutionContext.getErroredRules());
-            ruleAudit.setRuleExecTime(ruleExecutionContext.getRuleExecutionTimingsInMillis());
-            ruleAudit.setTimestamp(System.currentTimeMillis());
-            Set<RuleFlowEdgeSnapshot> snapshots = ruleExecutionContext.getRuleFlow().getEdges().stream()
-                    .map(rfe -> {
-                        RuleFlowEdgeSnapshot edgeSnapshot = new RuleFlowEdgeSnapshot();
-                        edgeSnapshot.setRuleNameFrom(rfe.getRuleNameFrom());
-                        edgeSnapshot.setRuleNameTo(rfe.getRuleNameTo());
-                        return edgeSnapshot;
-                    }).collect(Collectors.toSet());
-            ruleAudit.setEdges(snapshots);
-            ruleAudit.setTransactionId(ruleExecutionContext.getId());
-
-            ruleAudit.setRules(ruleExecutionContext.getRulesExecutedChain().stream()
-                    .map(rule -> {
-                        RuleSnapshot ruleSnapshot = new RuleSnapshot();
-                        ruleSnapshot.setName(rule.getName());
-                        ruleSnapshot.setDescription(rule.getDescription());
-                        ruleSnapshot.setFamily(rule.getFamily());
-                        ruleSnapshot.setEvaluationCondition(rule.getEvaluationCondition());
-                        ruleSnapshot.setExecutionAction(rule.getExecutionAction());
-                        ruleSnapshot.setShortCircuit(rule.getShortCircuit());
-                        return ruleSnapshot;
-                    }).collect(Collectors.toSet()));
-
-            ruleAudit.setTotalTimeTakenInMillis(ruleExecutionContext.getRuleExecutionTimingsInMillis().values().stream().reduce(0L, (a, b) -> a + b));
-            try {
-                bootstrap.getVertx().eventBus().send(RuleAuditPersistenceVerticle.class.getName(), OBJECT_MAPPER.writeValueAsString(ruleAudit));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+            if (audit) {
+                audit(flowName, ruleExecutionContext);
             }
         });
         return response;
+    }
+
+    private void audit(@PathVariable("flowName") final String flowName, final RuleExecutionContext<?> ruleExecutionContext) {
+        RuleAudit ruleAudit = new RuleAudit();
+        ruleAudit.setFlowName(flowName);
+        ruleAudit.setRuleErrors(ruleExecutionContext.getErroredRules());
+        ruleAudit.setRuleExecTime(ruleExecutionContext.getRuleExecutionTimingsInMillis());
+        ruleAudit.setTimestamp(System.currentTimeMillis());
+        Set<RuleFlowEdgeSnapshot> snapshots = ruleExecutionContext.getRuleFlow().getEdges().stream()
+                .map(rfe -> {
+                    RuleFlowEdgeSnapshot edgeSnapshot = new RuleFlowEdgeSnapshot();
+                    edgeSnapshot.setRuleNameFrom(rfe.getRuleNameFrom());
+                    edgeSnapshot.setRuleNameTo(rfe.getRuleNameTo());
+                    return edgeSnapshot;
+                }).collect(Collectors.toSet());
+        ruleAudit.setEdges(snapshots);
+        ruleAudit.setTransactionId(ruleExecutionContext.getId());
+
+        ruleAudit.setRules(ruleExecutionContext.getRulesExecutedChain().stream()
+                .map(rule -> {
+                    RuleSnapshot ruleSnapshot = new RuleSnapshot();
+                    ruleSnapshot.setName(rule.getName());
+                    ruleSnapshot.setDescription(rule.getDescription());
+                    ruleSnapshot.setFamily(rule.getFamily());
+                    ruleSnapshot.setEvaluationCondition(rule.getEvaluationCondition());
+                    ruleSnapshot.setExecutionAction(rule.getExecutionAction());
+                    ruleSnapshot.setShortCircuit(rule.getShortCircuit());
+                    return ruleSnapshot;
+                }).collect(Collectors.toSet()));
+
+        ruleAudit.setTotalTimeTakenInMillis(ruleExecutionContext.getRuleExecutionTimingsInMillis().values().stream().reduce(0L, (a, b) -> a + b));
+        try {
+            bootstrap.getVertx().eventBus().send(RuleAuditPersistenceVerticle.class.getName(), OBJECT_MAPPER.writeValueAsString(ruleAudit));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     @GetMapping("/rulelibrary")

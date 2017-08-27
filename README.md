@@ -14,7 +14,7 @@ The flights data are sourced from this site:  https://openflights.org/data.html
 * config-service - A centralized configuration management server.
 * discovery-service - A Eureka powered service registry.
 * refdata-service - A Reference data service that has the embedded database of all the airlines/route details & a configurable rule executor framework.
-* rulebase-service - The edge service that is consumed by the end consumers.
+* rulebase-service - The rule execution engine
 * preclearancestats-service - The edge service shows a *realtime* aggregates of the nationalities of people being precleared (during flight checkin).
 * zipkin-service - The service that has the Zipkin-UI to trace the distributed logs.
 
@@ -75,7 +75,10 @@ You should see all the services started up and they will have their own logs at 
   "cob": "GB",
   "gender": "M",
   "eventType": "MOVEMENT_EVENT",
-  "eventSubtype": "BOOKING"
+  "eventSubtype": "BOOKING",
+  "pob": "MAA",
+  "visa": "T1",
+  "ssn": "1122"
 }
 ```
 
@@ -86,22 +89,19 @@ You should see all the services started up and they will have their own logs at 
 * To execute rules, POST the below payload JSON to this URL: http://HOST:PORT/ruleresult/RISK_RULE
 ```
 {
-	"nationality": "IN",
-	"cob": "GB",
-	"gender": "M",
-	"eventType": "MOVEMENT_EVENT",
-	"eventSubtype": "BOOKING"
+  "nationality": "IN",
+  "cob": "GB",
+  "gender": "M",
+  "eventType": "MOVEMENT_EVENT",
+  "eventSubtype": "BOOKING",
+  "pob": "MAA",
+  "visa": "T1",
+  "ssn": "1122"
 }
 ```
 * To see the Audit of the rules, go to http://HOST:PORT/ on your browser. (A simple UI built using AngularJS and Bootstrap)
 ** Here is what you'll see:
 ![Rule audit](rule_audit.png?raw=true "Rule Audit ")
-
-
-
-
-
-
 
 ## License
 

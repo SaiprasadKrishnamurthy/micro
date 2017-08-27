@@ -3,7 +3,7 @@ package com.sai.rulebase.model;
 import com.sai.rulebase.entity.Rule;
 import com.sai.rulebase.entity.YesNoType;
 import com.sai.rulebase.repository.TransactionalDataRepository;
-import com.sai.rulebase.scratchpad.TimeLimitedTaskExecutor;
+import com.sai.rulebase.executor.TimeLimitedTaskExecutor;
 import com.sai.rules.rulebase.RuleExecutionContext;
 import com.sai.rules.rulebase.SpelUtils;
 import org.springframework.beans.factory.annotation.Autowired;

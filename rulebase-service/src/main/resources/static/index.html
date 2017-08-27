@@ -16,6 +16,7 @@
         div.well {
             overflow-y: scroll;
         }
+
     </style>
     <script>
         var app = angular.module("myApp", []);
@@ -33,16 +34,14 @@
 
         });
 
-
-
-
-
     </script>
 
     <style>
         .label{
             color: #000
         }
+        svg { width: 200% }
+
 
 
 
@@ -66,7 +65,9 @@
             <div class="panel-heading">Transaction: {{ x.transactionId }}</div>
             <div class="panel-body">
                 <div class="alert alert-{{ x.labelType }}" role="alert">
-                    RuleFlow: {{ x.flowName }}
+                    <h4>
+                        <i class="fa fa-warning">RuleFlow: {{ x.flowName }}</i>
+                    </h4>
                 </div>
                 <div class="col-md-12">
                     <div class="well row">

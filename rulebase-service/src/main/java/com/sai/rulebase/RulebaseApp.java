@@ -1,8 +1,6 @@
 package com.sai.rulebase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Iterables;
-import com.sai.rulebase.entity.Rule;
 import com.sai.rulebase.entity.RuleFlow;
 import com.sai.rulebase.entity.RuleFlowEdge;
 import com.sai.rulebase.repository.RuleFlowRepository;
@@ -27,6 +25,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Created by saipkri on 18/08/17.
@@ -54,40 +53,45 @@ public class RulebaseApp {
     @Bean
     public CommandLineRunner loadData(final RuleRepository ruleRepository, final RuleFlowRepository ruleFlowRepository) {
         return (args) -> {
-            Iterable<Rule> all = ruleRepository.findAll();
-            Rule[] rules = Iterables.toArray(all, Rule.class);
-
-            List<RuleFlowEdge> edges = new ArrayList<>();
-            for (int i = 0; i < rules.length - 2; i++) {
-                RuleFlowEdge ruleFlowEdge = new RuleFlowEdge();
-                ruleFlowEdge.setRuleNameFrom(rules[i].getName());
-                ruleFlowEdge.setRuleNameTo(rules[i + 1].getName());
-                edges.add(ruleFlowEdge);
+            {
+                String dsl = "CountryOfBirthCheckRule -> NationalityCheckRule -> EventTypeAndSubTypeCheckRule -> GenderCheckRule -> PlaceOfBirthRule -> TypeOfVisaRule; CountryOfBirthCheckRule -> SSNCheckRule -> PlaceOfBirthRule";
+                RuleFlow ruleFlow = new RuleFlow();
+                ruleFlow.setName("RuleFlowDef1");
+                ruleFlow.setDescription("Rule flow definition for risk rules");
+                ruleFlow.setEdges(edges(dsl));
+                ruleFlow.setPostExecutionCallback("#buildResponse(#ctx)");
+                ruleFlowRepository.save(ruleFlow);
             }
-            RuleFlowEdge ruleFlowEdge = new RuleFlowEdge();
-            ruleFlowEdge.setRuleNameFrom(rules[0].getName());
-            ruleFlowEdge.setRuleNameTo(rules[rules.length - 1].getName());
 
-            edges.add(ruleFlowEdge);
+            {
+                String dsl = "CountryOfBirthCheckRule -> NationalityCheckRule -> EventTypeAndSubTypeCheckRule -> GenderCheckRule -> PlaceOfBirthRule -> SSNCheckRule -> TypeOfVisaRule";
+                RuleFlow ruleFlow = new RuleFlow();
+                ruleFlow.setName("RuleFlowDef2");
+                ruleFlow.setDescription("Rule flow definition for risk rules 2");
+                ruleFlow.setEdges(edges(dsl));
+                ruleFlow.setPostExecutionCallback("#buildResponse(#ctx)");
+                ruleFlowRepository.save(ruleFlow);
+            }
 
-            RuleFlowEdge ruleFlowEdge1 = new RuleFlowEdge();
-            ruleFlowEdge1.setRuleNameFrom(ruleFlowEdge.getRuleNameTo());
-            ruleFlowEdge1.setRuleNameTo(rules[rules.length - 3].getName());
-
-            edges.add(ruleFlowEdge1);
-
-
-            RuleFlow ruleFlow = new RuleFlow();
-            ruleFlow.setName("RuleFlowDef1");
-            ruleFlow.setDescription("Rule flow definition for risk rules");
-            ruleFlow.setEdges(edges);
-            ruleFlow.setPostExecutionCallback("#buildResponse(#ctx)");
-
-            ruleFlowRepository.save(ruleFlow);
-
+            System.out.println(ruleExecApi.ruleresult("RuleFlowDef1", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload1.json"), Map.class), true));
+            System.out.println(ruleExecApi.ruleresult("RuleFlowDef2", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload1.json"), Map.class), true));
             System.out.println(ruleExecApi.ruleresult("RuleFlowDef1", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload.json"), Map.class), true));
-            //System.out.println(ruleExecApi.ruleresult("RuleFlowDef1", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload1.json"), Map.class), false));
+            System.out.println(ruleExecApi.ruleresult("RuleFlowDef2", new ObjectMapper().readValue(RulebaseApp.class.getClassLoader().getResourceAsStream("payload.json"), Map.class), true));
         };
+    }
+
+    private List<RuleFlowEdge> edges(final String dsl) {
+        List<RuleFlowEdge> edges = new ArrayList<>();
+        Stream.of(dsl.split(";"))
+                .forEach(line -> Stream.of(line.split("->"))
+                        .reduce((a, b) -> {
+                            RuleFlowEdge edge = new RuleFlowEdge();
+                            edge.setRuleNameFrom(a.trim());
+                            edge.setRuleNameTo(b.trim());
+                            edges.add(edge);
+                            return b;
+                        }));
+        return edges;
     }
 
     public static void main(String[] args) {
