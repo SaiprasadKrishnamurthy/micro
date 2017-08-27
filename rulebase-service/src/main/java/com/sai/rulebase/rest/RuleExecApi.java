@@ -73,6 +73,12 @@ public class RuleExecApi {
         return response;
     }
 
+    @GetMapping("/run")
+    public DeferredResult<?> run() throws Exception {
+        Map payload = new ObjectMapper().readValue(RuleExecApi.class.getClassLoader().getResourceAsStream("payload.json"), Map.class);
+        return ruleresult("RuleFlowDef1", payload, true);
+    }
+
     @PostMapping("/ruleresult/ruleflowdef/{flowContent}")
     public DeferredResult<?> ruleresultForFlowContent(@PathVariable("flowContent") final String flowContent, final @RequestBody Map payload, @RequestParam(required = false, defaultValue = "true", name = "audit") final boolean audit) throws Exception {
         DeferredResult<Object> response = new DeferredResult<>();

@@ -16,12 +16,6 @@
         div.well {
             overflow-y: scroll;
         }
-
-
-
-
-
-
     </style>
     <script>
   function connect() {
@@ -71,11 +65,6 @@ function plot(data) {
         Plotly.newPlot('perf', data, layout);
 }
 
-
-
-
-
-
     </script>
 
 </head>
@@ -84,9 +73,19 @@ function plot(data) {
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-            <a class="navbar-brand" href="/">Rules Viz</a>
-            <ul>
+            <a class="navbar-brand" href="/">Rulebase</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">Transactions <span class="sr-only">(current)</span></a></li>
                 <li><a href="/stats.html">Realtime stats</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <button type="submit" id="run" class="btn btn-danger">Run a few samples</button>
+                </li>
             </ul>
         </div>
     </div>
@@ -94,5 +93,25 @@ function plot(data) {
 <div id="perf">
 </div>
 <hr/>
+<script>
+    $('#run').click(function(e) {
+            e.preventDefault();
+
+          for(var i=0; i<20; i++) {
+            $.ajax({
+                'url' : '/run',
+                'type' : 'GET',
+                error: function() {
+                   alert('Error');
+                },
+                'success' : function(data) {
+                   if (data == "success") {
+                        debugger;
+                   }
+                }
+            });
+          }
+        });
+</script>
 </body>
 </html>

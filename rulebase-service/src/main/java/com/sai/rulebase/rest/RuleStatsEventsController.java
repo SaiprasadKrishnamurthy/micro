@@ -35,7 +35,7 @@ public class RuleStatsEventsController {
         return new HashMap();
     }
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 100)
     public void push() throws Exception {
         Map<String, Long> timings = new LinkedHashMap<>();
         List<RulePerfStats> allByOrderByTimestampDesc = ruleAuditRepository.findTop10ByOrderByTimestampDesc();
