@@ -51,6 +51,16 @@ public class TransactionalDataRepository {
     public void setup(final RuleExecutionContext<?> ruleExecutionContext, final String ruleFlowName) {
         RuleFlow ruleFlow = ruleFlowRepository.findByName(ruleFlowName);
         ruleFlowEdgesCache.put(ruleExecutionContext.getId(), ruleFlow.getEdges());
+        _setup(ruleExecutionContext, ruleFlow);
+
+    }
+
+    public void setup(final RuleExecutionContext<?> ruleExecutionContext, final RuleFlow ruleFlow) {
+        ruleFlowEdgesCache.put(ruleExecutionContext.getId(), ruleFlow.getEdges());
+        _setup(ruleExecutionContext, ruleFlow);
+    }
+
+    private void _setup(final RuleExecutionContext<?> ruleExecutionContext, final RuleFlow ruleFlow) {
         contextsCache.put(ruleExecutionContext.getId(), ruleExecutionContext);
         ruleExecutionContext.setRuleFlow(ruleFlow);
         flowsCache.put(ruleExecutionContext.getId(), ruleFlow);
@@ -59,10 +69,6 @@ public class TransactionalDataRepository {
                 .forEach(ruleName ->
                         predecessorsCountTrackCache.put(ruleExecutionContext.getId() + "|" + ruleName,
                                 new AtomicInteger(prevRulesFor(ruleExecutionContext.getId(), ruleName).size())));
-
-        // Add the last rule.
-        System.out.println(predecessorsCountTrackCache);
-
     }
 
     public Rule firstRule(final RuleExecutionContext<?> ruleExecutionContext) {
@@ -87,11 +93,11 @@ public class TransactionalDataRepository {
     }
 
     public void startExec(final RuleExecutionContext<?> ruleExecutionContext, final Rule rule) {
-        startTimesMillis.put(ruleExecutionContext.getId()+"|"+rule.getName(), System.currentTimeMillis());
+        startTimesMillis.put(ruleExecutionContext.getId() + "|" + rule.getName(), System.currentTimeMillis());
     }
 
     public void endExec(final RuleExecutionContext<?> ruleExecutionContext, final Rule rule) {
-        Long totalExecTime = System.currentTimeMillis() - startTimesMillis.getIfPresent(ruleExecutionContext.getId()+"|"+rule.getName());
+        Long totalExecTime = System.currentTimeMillis() - startTimesMillis.getIfPresent(ruleExecutionContext.getId() + "|" + rule.getName());
         ruleExecutionContext.getRuleExecutionTimingsInMillis().put(rule.getName(), totalExecTime);
     }
 

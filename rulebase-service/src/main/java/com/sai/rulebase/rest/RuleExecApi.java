@@ -2,10 +2,8 @@ package com.sai.rulebase.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sai.rulebase.entity.Rule;
-import com.sai.rulebase.entity.RuleAudit;
-import com.sai.rulebase.entity.RuleFlowEdgeSnapshot;
-import com.sai.rulebase.entity.RuleSnapshot;
+import com.sai.rulebase.RulebaseApp;
+import com.sai.rulebase.entity.*;
 import com.sai.rulebase.model.RuleFunction;
 import com.sai.rulebase.model.RuleLibraryInfo;
 import com.sai.rulebase.repository.*;
@@ -70,6 +68,32 @@ public class RuleExecApi {
             // Audit the flow.
             if (audit) {
                 audit(flowName, ruleExecutionContext);
+            }
+        });
+        return response;
+    }
+
+    @PostMapping("/ruleresult/ruleflowdef/{flowContent}")
+    public DeferredResult<?> ruleresultForFlowContent(@PathVariable("flowContent") final String flowContent, final @RequestBody Map payload, @RequestParam(required = false, defaultValue = "true", name = "audit") final boolean audit) throws Exception {
+        DeferredResult<Object> response = new DeferredResult<>();
+        RuleExecutionContext<?> ruleExecutionContext = RuleExecutionContext.newContext(payload);
+        RuleFlow flow = new RuleFlow();
+        flow.setName(ruleExecutionContext.getId());
+        flow.setDescription("Inline flow");
+        flow.setEdges(RulebaseApp.edges(flowContent.trim()));
+
+        transactionalDataRepository.setup(ruleExecutionContext, flow);
+
+        // First rule in the flow.
+        Rule first = transactionalDataRepository.firstRule(ruleExecutionContext);
+        bootstrap.getVertx().eventBus().send(RuleExecutorVerticle.class.getName(), ruleExecutionContext.getId() + "|" + first.getName());
+
+        // React to the response.
+        bootstrap.getVertx().eventBus().consumer("DONE|" + ruleExecutionContext.getId(), msg -> {
+            response.setResult(transactionalDataRepository.responseFor(ruleExecutionContext));
+            // Audit the flow.
+            if (audit) {
+                audit(flow.getName(), ruleExecutionContext);
             }
         });
         return response;

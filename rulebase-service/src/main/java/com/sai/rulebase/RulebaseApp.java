@@ -80,7 +80,7 @@ public class RulebaseApp {
         };
     }
 
-    private List<RuleFlowEdge> edges(final String dsl) {
+    public static List<RuleFlowEdge> edges(final String dsl) {
         List<RuleFlowEdge> edges = new ArrayList<>();
         Stream.of(dsl.split(";"))
                 .forEach(line -> Stream.of(line.split("->"))
