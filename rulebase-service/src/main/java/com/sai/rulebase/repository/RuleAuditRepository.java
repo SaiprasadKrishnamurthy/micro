@@ -10,4 +10,5 @@ import java.util.List;
  */
 public interface RuleAuditRepository extends CrudRepository<RuleAudit, Long> {
     List<RuleAudit> findAllByOrderByTimestampDesc();
+    List<RulePerfStats> findTop10ByOrderByTimestampDesc();
 }
