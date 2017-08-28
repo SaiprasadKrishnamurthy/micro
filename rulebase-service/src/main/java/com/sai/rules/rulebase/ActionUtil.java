@@ -20,6 +20,9 @@ public class ActionUtil {
         if (System.currentTimeMillis() % 3 == 0) {
             Thread.sleep(15_000);
         }
+        if (System.currentTimeMillis() % 4 == 0) {
+            throw new NullPointerException("Thrown intentionally");
+        }
         ruleExecutionContext.getStateVariables().put("WatchlistResponse", "<WatchlistResponse />");
         ruleExecutionContext.getStateVariables().put("ProfilerResponse", "<ProfilerResponse />");
     }
