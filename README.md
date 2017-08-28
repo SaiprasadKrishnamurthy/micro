@@ -106,4 +106,4 @@ You should see all the services started up and they will have their own logs at 
 
 ## License
 
-This project is licensed under Apache License 2.0.
+This project is licensed under Apache License 2.0 (Please check the dependencies license (eg: Plottly, Mermaid JS).
