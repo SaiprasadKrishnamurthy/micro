@@ -36,7 +36,7 @@ public class RuleAudit {
     @Column(name = "VALUE")
     private Map<String, Long> ruleExecTime = new HashMap<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Column(nullable = false)
     @Lob
     private Map<String, String> ruleErrors = new HashMap<>();

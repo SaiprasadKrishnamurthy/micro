@@ -26,7 +26,10 @@
         stompClient.subscribe('/topic/rulestats', function (data) {
             plot(data);
         });
-        sendName();
+        stompClient.subscribe('/topic/errorFlows', function (data) {
+            errorFlows(data);
+        });
+        initiate();
     });
 }
 
@@ -37,9 +40,9 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-function sendName() {
+function initiate() {
     console.log("Sending...");
-    stompClient.send("/app/hello", {});
+    stompClient.send("/app/hello1", {});
 }
 
 connect();
@@ -65,11 +68,29 @@ function plot(data) {
         Plotly.newPlot('perf', data, layout);
 }
 
+function errorFlows(data) {
+   var res = JSON.parse(data.body);
+    var data = [{
+      values: [res['Total Errors'], res['Total Success']],
+      labels: ['Total Errors', 'Total Success'],
+      type: 'pie',
+      hoverinfo: 'label+percent+name',
+      textposition: 'inside'
+    }];
+
+    var layout = {
+      height: 500,
+      width: 500,
+      title: 'Transaction status breakdown',
+    };
+    Plotly.newPlot('errorFlows', data, layout);
+}
+
     </script>
 
 </head>
 <body>
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -80,7 +101,7 @@ function plot(data) {
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li class="active"><a href="/">Transactions <span class="sr-only">(current)</span></a></li>
-                <li><a href="/stats.html">Realtime stats</a></li>
+                <li><a href="/stats.html">Realtime Txn stats</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li>
@@ -93,6 +114,8 @@ function plot(data) {
 <div id="perf">
 </div>
 <hr/>
+<div id="errorFlows">
+</div>
 <script>
     $('#run').click(function(e) {
             e.preventDefault();

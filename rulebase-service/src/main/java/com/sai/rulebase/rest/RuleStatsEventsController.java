@@ -1,5 +1,6 @@
 package com.sai.rulebase.rest;
 
+import com.sai.rulebase.entity.RuleAudit;
 import com.sai.rulebase.repository.RuleAuditRepository;
 import com.sai.rulebase.repository.RulePerfStats;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +29,22 @@ public class RuleStatsEventsController {
     }
 
 
+    @MessageMapping("/hello1")
+    @SendTo("/topic/errorFlows")
+    public Map errorFlows() throws Exception {
+        System.out.println("Started...");
+        return new HashMap();
+    }
+
     @MessageMapping("/hello")
     @SendTo("/topic/rulestats")
-    public Map preclearanceEvents() throws Exception {
+    public Map rulestats() throws Exception {
         System.out.println("Started...");
         return new HashMap();
     }
 
     @Scheduled(fixedRate = 100)
-    public void push() throws Exception {
+    public void perfStatsPush() throws Exception {
         Map<String, Long> timings = new LinkedHashMap<>();
         List<RulePerfStats> allByOrderByTimestampDesc = ruleAuditRepository.findTop10ByOrderByTimestampDesc();
         if (!allByOrderByTimestampDesc.isEmpty()) {
@@ -48,5 +56,22 @@ public class RuleStatsEventsController {
                 recentTransaction = allByOrderByTimestampDesc.get(0).getTransactionId();
             }
         }
+    }
+
+    @Scheduled(fixedRate = 100)
+    public void erroredFlowsPush() throws Exception {
+        Map<String, Integer> response = new LinkedHashMap<>();
+        Iterable<RuleAudit> total = ruleAuditRepository.findAll();
+        int errors = 0, success = 0;
+        for (RuleAudit a : total) {
+            if (a.getRuleErrors().isEmpty()) {
+                success++;
+            } else {
+                errors++;
+            }
+        }
+        response.put("Total Errors", errors);
+        response.put("Total Success", success);
+        template.convertAndSend("/topic/errorFlows", response);
     }
 }
