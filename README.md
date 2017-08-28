@@ -55,14 +55,17 @@ You should see all the services started up and they will have their own logs at 
 * An Example of a rule:
 ```
 {
-"name": "CountryOfBirthCheckRule",
-"description": "Check the Country of Birth",
-"priority": 1,
-"family": "RISK_RULE",
-"when": "payload['cob'] == 'GB'",
-"then": "#recordMatch(#ctx)",
-"shortCircuit": false,
-"active": true
+    "id": 1,
+    "name": "CountryOfBirthCheckRule",
+    "description": "Check the Country of Birth",
+    "evaluationCondition": "payload['cob'] == 'GB'",
+    "executionAction": "#print(#ctx)",
+    "priority": 1,
+    "shortCircuit": "N",
+    "active": "Y",
+    "family": "RISK_RULE",
+    "abortOnError": "Y",
+    "timeoutSecs": 5
 }
 ```
 * As you may notice,"then" makes a function call to recordMatch(...). This is your business logic. You may expose your business logic using the annotation @RuleLibrary. Remember this method has to be static.
